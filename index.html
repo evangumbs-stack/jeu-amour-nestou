@@ -9,6 +9,7 @@
 body{background:black;color:white;overflow:hidden;position:relative;}
 .container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;}
 .section{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
+.section.finalSection{height:auto; min-height:100vh; justify-content:flex-start; align-items:center; position:relative;}
 button{padding:12px 20px;margin:10px;border:none;border-radius:10px;background:#ff4da6;color:white;font-size:16px;cursor:pointer;}
 h1,h2{margin-bottom:15px;text-align:center;}
 .score{position:fixed;top:10px;right:10px;background:#ff4da6;padding:10px;border-radius:10px;z-index:10;}
@@ -104,7 +105,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="startMiniGame4()">Lancer</button>
 </section>
 
-<section class="section">
+<section class="section finalSection">
 <h1>🌹 Ma Nestou 🌹</h1>
 <img id="finalPhoto" src="photo.jpg" alt="Nous deux">
 <p id="finalMsg"></p>
@@ -180,7 +181,6 @@ function startMiniGame2(){
   setTimeout(()=>{clearInterval(interval);document.getElementById("msg2").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
 }
 
-// ===== Mini-jeu panier amélioré (panier mobile et jauge plus grande) =====
 function startMiniGame3(){
   const area=document.getElementById("gameArea3"); 
   area.innerHTML=""; 
@@ -188,16 +188,14 @@ function startMiniGame3(){
   const fill=document.getElementById("basketFill");
   basket.style.display="block"; 
   fill.style.width="0%";
-  fill.style.height="30px"; // jauge plus grande
+  fill.style.height="30px"; 
   let collected=0;
   const maxCollect=30; 
 
-  // Drag sur toute la largeur du conteneur
   basket.onmousedown=basket.ontouchstart=(e)=>{
     let offsetX=(e.clientX||e.touches[0].clientX)-basket.offsetLeft; 
     document.onmousemove=document.ontouchmove=(ev)=>{
       let basketX=(ev.clientX||ev.touches[0].clientX)-offsetX;
-      // panier peut aller jusqu'au bord gauche et droit
       if(basketX<0) basketX=0; 
       if(basketX>area.offsetWidth-basket.offsetWidth) basketX=area.offsetWidth-basket.offsetWidth;
       basket.style.left=basketX+"px";
@@ -226,7 +224,6 @@ function startMiniGame3(){
   setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
 }
 
-// ===== Tic Tac Toe =====
 function startMiniGame4(){
   const grid=document.getElementById("ticTacToe"); grid.innerHTML=""; let board=["","","","","","","","",""];
   let current="🍣"; let time=15;
@@ -239,8 +236,8 @@ function startMiniGame4(){
   const countdown=setInterval(()=>{time--; timer.innerText=time; if(time<=0){clearInterval(countdown);document.getElementById("msg4").innerText="⬇️ Slide vers le message final ⬇️"; showFinal();}},1000);
 }
 
-// ===== Message final =====
 function showFinal(){
+  const finalSection=document.querySelector(".finalSection");
   const finalMsg=document.getElementById("finalMsg");
   finalMsg.innerText=
 `💖 Mon amour 💖
@@ -264,13 +261,13 @@ Merci pour ton amour, ta patience et ta douceur. Tu es mon bonheur, mon refuge e
 
   for(let i=0;i<50;i++){
     let h=document.createElement("div"); h.className="finalHeart"; h.innerText="💖";
-    h.style.left=Math.random()*100+"%"; h.style.top=Math.random()*100+"%"; document.body.appendChild(h);
+    h.style.left=Math.random()*100+"%"; h.style.top=Math.random()*100+"%"; finalSection.appendChild(h);
   }
   const words=["💖Je t’aime💖","🌹Mon trésor🌹","💕Ma Nestou💕"];
   for(let i=0;i<30;i++){
     let w=document.createElement("div"); w.className="finalWord";
     w.innerText=words[Math.floor(Math.random()*words.length)];
-    w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; document.body.appendChild(w);
+    w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; finalSection.appendChild(w);
   }
 }
 </script>
