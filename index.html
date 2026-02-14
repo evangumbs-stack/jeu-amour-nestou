@@ -6,10 +6,9 @@
 <title>Jeu d'Amour pour Nestou 💖</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{background:black;color:white;overflow:hidden;position:relative;}
+body{background:black;color:white;overflow-x:hidden;position:relative;}
 .container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;}
 .section{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
-.section.finalSection{height:auto; min-height:150vh; justify-content:flex-start; align-items:center; position:relative;}
 button{padding:12px 20px;margin:10px;border:none;border-radius:10px;background:#ff4da6;color:white;font-size:16px;cursor:pointer;}
 h1,h2{margin-bottom:15px;text-align:center;}
 .score{position:fixed;top:10px;right:10px;background:#ff4da6;padding:10px;border-radius:10px;z-index:10;}
@@ -29,6 +28,16 @@ h1,h2{margin-bottom:15px;text-align:center;}
 @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
 .finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #finalPhoto{max-width:90%;max-height:80vh;border-radius:20px;margin:20px auto;display:block;}
+
+/* ===== Nouvelle section finale plus longue ===== */
+.section.finalSection {
+  height: auto;
+  min-height: 200vh; /* 2 écrans pour scroller plus bas */
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  padding: 50px 20px 500px 20px; /* gros padding en bas pour scroller encore plus */
+}
 </style>
 </head>
 <body>
@@ -105,6 +114,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="startMiniGame4()">Lancer</button>
 </section>
 
+<!-- ===== Section finale longue ===== -->
 <section class="section finalSection">
 <h1>🌹 Ma Nestou 🌹</h1>
 <img id="finalPhoto" src="photo.jpg" alt="Nous deux">
@@ -188,10 +198,9 @@ function startMiniGame3(){
   const fill=document.getElementById("basketFill");
   basket.style.display="block"; 
   fill.style.width="0%";
-  fill.style.height="30px"; 
+  fill.style.height="30px";
   let collected=0;
   const maxCollect=30; 
-
   basket.onmousedown=basket.ontouchstart=(e)=>{
     let offsetX=(e.clientX||e.touches[0].clientX)-basket.offsetLeft; 
     document.onmousemove=document.ontouchmove=(ev)=>{
@@ -237,7 +246,6 @@ function startMiniGame4(){
 }
 
 function showFinal(){
-  const finalSection=document.querySelector(".finalSection");
   const finalMsg=document.getElementById("finalMsg");
   finalMsg.innerText=
 `💖 Mon amour 💖
@@ -261,13 +269,13 @@ Merci pour ton amour, ta patience et ta douceur. Tu es mon bonheur, mon refuge e
 
   for(let i=0;i<50;i++){
     let h=document.createElement("div"); h.className="finalHeart"; h.innerText="💖";
-    h.style.left=Math.random()*100+"%"; h.style.top=Math.random()*100+"%"; finalSection.appendChild(h);
+    h.style.left=Math.random()*100+"%"; h.style.top=Math.random()*100+"%"; document.body.appendChild(h);
   }
   const words=["💖Je t’aime💖","🌹Mon trésor🌹","💕Ma Nestou💕"];
   for(let i=0;i<30;i++){
     let w=document.createElement("div"); w.className="finalWord";
     w.innerText=words[Math.floor(Math.random()*words.length)];
-    w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; finalSection.appendChild(w);
+    w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; document.body.appendChild(w);
   }
 }
 </script>
