@@ -1,4 +1,4 @@
-><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -9,6 +9,7 @@
 body{background:black;color:white;overflow:hidden;position:relative;}
 .container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;}
 .section{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
+.section.puzzleSection{height:auto; min-height:70vh; justify-content:center; padding:20px 0;} /* section puzzle adaptée */
 button{padding:12px 20px;margin:10px;border:none;border-radius:10px;background:#ff4da6;color:white;font-size:16px;cursor:pointer;}
 h1,h2{margin-bottom:15px;text-align:center;}
 .score{position:fixed;top:10px;right:10px;background:#ff4da6;padding:10px;border-radius:10px;z-index:10;}
@@ -18,7 +19,8 @@ h1,h2{margin-bottom:15px;text-align:center;}
 .star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;}
 .shooting{position:absolute;width:3px;height:3px;background:white;border-radius:50%;box-shadow:0 0 10px white;}
 #gameArea2,#gameArea3{position:relative;width:100%;height:60vh;overflow:hidden;}
-.item{position:absolute;font-size:30px;cursor:pointer;}
+#puzzleContainer{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);width:80%;height:45vh;margin:auto;gap:5px;}
+.cellPuzzle{background-size:cover;background-position:center;cursor:pointer;}
 #basket{font-size:50px;position:absolute;bottom:180px;left:50%;transform:translateX(-50%);z-index:10;cursor:pointer;display:none;}
 #basketFill{position:absolute;bottom:0;left:0;width:0%;height:30px;background:#ff4da6;border-radius:5px;pointer-events:none;}
 #ticTacToe{display:grid;grid-template-columns:repeat(3,80px);gap:5px;margin-top:20px;}
@@ -28,35 +30,6 @@ h1,h2{margin-bottom:15px;text-align:center;}
 @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
 .finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #finalPhoto{max-width:90%;max-height:80vh;border-radius:20px;margin:20px auto;display:block;}
-/* Puzzle Styles */
-.puzzleTile{
-    cursor:pointer;
-    border:1px solid #ff4da6;
-    background-size:400% 400%;
-    transition: transform 0.3s ease, border 0.3s ease;
-}
-.puzzleTile.selected{
-    border:3px solid #ffd6e8;
-    transform: scale(1.05);
-}
-/* Puzzle Styles ajustées */
-#puzzleContainer{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    grid-template-rows:repeat(4,1fr);
-    width:80%;
-    height:55vh; /* réduit pour mieux tenir à l’écran */
-    margin:auto;
-    gap:5px;
-}
-.section:nth-child(6){ /* section puzzle */
-    height:auto; /* laisse s’adapter à son contenu */
-    min-height:55vh; /* pour qu’elle reste assez grande */
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-}
 </style>
 </head>
 <body>
@@ -104,12 +77,11 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="answerAnim('film','Waves',this)">Waves</button>
 </section>
 
-<section class="section">
+<section class="section puzzleSection">
 <h2>💖 Puzzle 4x4 💖</h2>
 <div id="puzzleContainer"></div>
 <p class="messageNext" id="msg1"></p>
-<button onclick="startPuzzleGame()">Lancer</button>
-<p id="timerPuzzle"></p>
+<button onclick="startMiniGame1()">Lancer</button>
 </section>
 
 <section class="section">
@@ -179,97 +151,72 @@ function shootingStar(){
 }
 setInterval(shootingStar,2000);
 
-// ===== Puzzle 4x4 =====
-function startPuzzleGame(){
-    const container = document.getElementById("puzzleContainer");
-    container.innerHTML = "";
-    const size = 4;
-    let tiles = [];
-    let firstTile = null;
-    puzzleScore = 0;
+// ===== Mini-jeu Puzzle 4x4 =====
+let puzzleTiles=[], firstTile=null, puzzleTimer;
+function startMiniGame1(){
+  const container=document.getElementById("puzzleContainer");
+  container.innerHTML="";
+  puzzleTiles=[];
+  const size=4;
+  let numbers=Array.from({length:size*size},(_,i)=>i);
+  numbers.sort(()=>Math.random()-0.5);
 
-    // Création des tuiles
-    for(let i=0;i<size*size;i++){
-        const tile = document.createElement("div");
-        tile.className = "puzzleTile";
-        tile.dataset.correct = i;
-        tile.style.backgroundImage = "url('ton_image.png')";
-        tile.style.backgroundPosition = `${(i%size)*(100/(size-1))}% ${(Math.floor(i/size)*(100/(size-1)))}%`;
-        container.appendChild(tile);
-        tiles.push(tile);
-    }
+  for(let i=0;i<size*size;i++){
+    let div=document.createElement("div");
+    div.className="cellPuzzle";
+    div.style.backgroundImage="url('puzzle.png')";
+    div.dataset.index=numbers[i];
+    div.style.backgroundPosition=`${(numbers[i]%size)*(100/(size-1))}% ${(Math.floor(numbers[i]/size))*(100/(size-1))}%`;
+    div.onclick=()=>selectTile(div);
+    container.appendChild(div);
+    puzzleTiles.push(div);
+  }
 
-    // Mélange
-    function shuffle(){
-        for(let i=tiles.length-1;i>0;i--){
-            const j=Math.floor(Math.random()*(i+1));
-            swapTiles(tiles[i],tiles[j]);
-        }
-    }
-    shuffle();
-
-    // Gestion du clic
-    container.addEventListener("click", function(e){
-        if(!e.target.classList.contains("puzzleTile")) return;
-        const tile = e.target;
-        if(firstTile === null){
-            firstTile = tile;
-            firstTile.classList.add("selected");
-        } else if(firstTile !== tile){
-            swapTiles(firstTile,tile);
-            firstTile.classList.remove("selected");
-            firstTile = null;
-            puzzleScore++; score++; scoreGames[0]++; updateScore();
-            if(checkSolved()){
-                document.getElementById("msg1").innerText = "🎉 Bravo ! Puzzle résolu ! ⬇️ Slide vers le jeu suivant ⬇️";
-                clearInterval(timerInterval);
-            }
-        } else {
-            firstTile.classList.remove("selected");
-            firstTile = null;
-        }
-    });
-
-    // Échange avec animation
-    function swapTiles(t1,t2){
-        const tempPos = t1.style.backgroundPosition;
-        t1.style.backgroundPosition = t2.style.backgroundPosition;
-        t2.style.backgroundPosition = tempPos;
-
-        t1.style.transform = "scale(1.1)";
-        t2.style.transform = "scale(1.1)";
-        setTimeout(()=>{
-            t1.style.transform = "scale(1)";
-            t2.style.transform = "scale(1)";
-        },300);
-    }
-
-    // Vérifie si puzzle résolu
-    function checkSolved(){
-        for(let i=0;i<tiles.length;i++){
-            const pos = tiles[i].style.backgroundPosition;
-            const correctX = (i%size)*(100/(size-1))+"%";
-            const correctY = (Math.floor(i/size)*(100/(size-1)))+"%";
-            if(pos !== correctX + " " + correctY) return false;
-        }
-        return true;
-    }
-
-    // Timer 1 minute 30
-    let time = 90;
-    const timerEl = document.getElementById("timerPuzzle");
-    timerEl.innerText = `Temps restant : ${time}s`;
-    const timerInterval = setInterval(()=>{
-        time--;
-        timerEl.innerText = `Temps restant : ${time}s`;
-        if(time<=0){
-            clearInterval(timerInterval);
-            document.getElementById("msg1").innerText = "⏰ Temps écoulé ! ⬇️ Slide vers le jeu suivant ⬇️";
-        }
-    },1000);
+  let time=90; // 1min30
+  const timer=document.createElement("p");
+  timer.id="timerPuzzle";
+  timer.innerText=time;
+  container.parentNode.insertBefore(timer,container);
+  clearInterval(puzzleTimer);
+  puzzleTimer=setInterval(()=>{
+    time--;
+    timer.innerText=time;
+    if(time<=0){clearInterval(puzzleTimer);document.getElementById("msg1").innerText="Temps écoulé ! ⬇️ Slide vers le jeu suivant ⬇️"; showFinal();}
+  },1000);
 }
 
-// ===== Mini-jeux restants =====
+function selectTile(tile){
+  if(!firstTile){
+    firstTile=tile;
+    tile.style.outline="2px solid #ff4da6";
+  } else if(firstTile===tile){
+    firstTile.style.outline="none";
+    firstTile=null;
+  } else {
+    // Échange les positions
+    let temp=firstTile.style.backgroundPosition;
+    firstTile.style.backgroundPosition=tile.style.backgroundPosition;
+    tile.style.backgroundPosition=temp;
+
+    let tempIndex=firstTile.dataset.index;
+    firstTile.dataset.index=tile.dataset.index;
+    tile.dataset.index=tempIndex;
+
+    firstTile.style.outline="none";
+    firstTile=null;
+    score++;
+    scoreGames[0]++;
+    updateScore();
+
+    // Vérifie si puzzle terminé
+    if(puzzleTiles.every((t,i)=>t.dataset.index==i)){
+      clearInterval(puzzleTimer);
+      document.getElementById("msg1").innerText="Puzzle terminé ! 💖⬇️ Slide vers le jeu suivant ⬇️";
+    }
+  }
+}
+
+// ===== Mini-jeu chatons =====
 function startMiniGame2(){
   const area=document.getElementById("gameArea2"); area.innerHTML="";
   let interval=setInterval(()=>{
@@ -285,6 +232,7 @@ function startMiniGame2(){
   setTimeout(()=>{clearInterval(interval);document.getElementById("msg2").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
 }
 
+// ===== Mini-jeu panier =====
 function startMiniGame3(){
   const area=document.getElementById("gameArea3"); 
   area.innerHTML=""; 
@@ -328,6 +276,7 @@ function startMiniGame3(){
   setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
 }
 
+// ===== Tic Tac Toe =====
 function startMiniGame4(){
   const grid=document.getElementById("ticTacToe"); grid.innerHTML=""; let board=["","","","","","","","",""];
   let current="🍣"; let time=15;
