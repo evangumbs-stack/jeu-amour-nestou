@@ -17,7 +17,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 #stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;overflow:hidden;}
 .star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;}
 .shooting{position:absolute;width:3px;height:3px;background:white;border-radius:50%;box-shadow:0 0 10px white;}
-#gameArea,#gameArea2,#gameArea3{position:relative;width:100%;height:60vh;overflow:hidden;}
+#gameArea,#gameArea2,#gameArea3,#puzzleArea{position:relative;width:100%;height:60vh;overflow:hidden;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;}
 .item{position:absolute;font-size:30px;cursor:pointer;}
 #basket{font-size:50px;position:absolute;bottom:180px;left:50%;transform:translateX(-50%);z-index:10;cursor:pointer;display:none;}
 #basketFill{position:absolute;bottom:0;left:0;width:0%;height:30px;background:#ff4da6;border-radius:5px;pointer-events:none;}
@@ -28,16 +28,10 @@ h1,h2{margin-bottom:15px;text-align:center;}
 @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
 .finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #finalPhoto{max-width:90%;max-height:80vh;border-radius:20px;margin:20px auto;display:block;}
-
-/* ===== Nouvelle section finale plus longue ===== */
-.section.finalSection {
-  height: auto;
-  min-height: 200vh; /* 2 écrans pour scroller plus bas */
-  justify-content: flex-start;
-  align-items: center;
-  position: relative;
-  padding: 50px 20px 500px 20px; /* gros padding en bas pour scroller encore plus */
-}
+/* Puzzle pieces */
+.puzzlePiece{border:1px solid #fff;background-size:320px 320px;cursor:pointer;}
+/* Section finale longue */
+.section.finalSection{height:auto;min-height:200vh;justify-content:flex-start;align-items:center;position:relative;padding:50px 20px 500px 20px;}
 </style>
 </head>
 <body>
@@ -48,6 +42,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button style="position:fixed;top:50px;right:10px;z-index:10;" onclick="toggleMusic()">⏯️ Musique</button>
 
 <div class="container">
+<!-- Section Accueil -->
 <section class="section">
 <h1>💖 Jeu d'Amour pour Nestou 💖</h1>
 <p>Anne Esther, tu es mon trésor ✨💖</p>
@@ -55,6 +50,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <p>Défile vers le bas ⬇️</p>
 </section>
 
+<!-- Section Questions -->
 <section class="section">
 <h2>Moment préféré ensemble ? 😏</h2>
 <button onclick="answerAnim('moment','Miguel 🎶',this)">Miguel 🎶</button>
@@ -69,7 +65,6 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="answerAnim('activity','Lego 🧱',this)">Lego 🧱</button>
 <button onclick="answerAnim('activity','Sushis 🍣',this)">Sushis 🍣</button>
 <button onclick="answerAnim('activity','Sport 🏃‍♀️',this)">Sport 🏃‍♀️</button>
-<button onclick="answerAnim('activity','Tappeur 🌳',this)">Tappeur 🌳</button>
 </section>
 
 <section class="section">
@@ -77,7 +72,6 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="answerAnim('surnom','Ma Nestou 💖',this)">Ma Nestou 💖</button>
 <button onclick="answerAnim('surnom','Mon trésor 💎',this)">Mon trésor 💎</button>
 <button onclick="answerAnim('surnom','Mon amour ❤️',this)">Mon amour ❤️</button>
-<button onclick="answerAnim('surnom','Ma princesse 👑',this)">Ma princesse 👑</button>
 </section>
 
 <section class="section">
@@ -87,20 +81,15 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="answerAnim('film','Waves',this)">Waves</button>
 </section>
 
+<!-- Section Puzzle -->
 <section class="section">
-<h2>💖 Attrape les cœurs !</h2>
-<div id="gameArea"></div>
-<p class="messageNext" id="msg1"></p>
-<button onclick="startMiniGame1()">Lancer</button>
+<h2>🧩 Puzzle 4x4</h2>
+<div id="puzzleArea"></div>
+<p class="messageNext" id="msgPuzzle"></p>
+<button onclick="startPuzzle()">Lancer le puzzle</button>
 </section>
 
-<section class="section">
-<h2>🐱 Attrape les chatons !</h2>
-<div id="gameArea2"></div>
-<p class="messageNext" id="msg2"></p>
-<button onclick="startMiniGame2()">Lancer</button>
-</section>
-
+<!-- Section Panier -->
 <section class="section">
 <h2>🧺 Panier de cœurs !</h2>
 <div id="gameArea3"></div>
@@ -109,6 +98,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="startMiniGame3()">Lancer</button>
 </section>
 
+<!-- Section Tic Tac Toe -->
 <section class="section">
 <h2>❌ Tic Tac Toe 💕</h2>
 <div id="ticTacToe"></div>
@@ -116,7 +106,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="startMiniGame4()">Lancer</button>
 </section>
 
-<!-- ===== Section finale longue ===== -->
+<!-- Section finale -->
 <section class="section finalSection">
 <h1>🌹 Ma Nestou 🌹</h1>
 <img id="finalPhoto" src="photo.jpg" alt="Nous deux">
@@ -162,37 +152,62 @@ function shootingStar(){
 }
 setInterval(shootingStar,2000);
 
-// ===== Mini-jeux =====
-function startMiniGame1(){
-  const area=document.getElementById("gameArea"); area.innerHTML="";
-  let interval=setInterval(()=>{
-    const heart=document.createElement("div"); heart.className="item"; heart.innerText="💖";
-    heart.style.left=Math.random()*(area.offsetWidth-30)+"px"; heart.style.top="-30px";
-    area.appendChild(heart);
-    let fall=setInterval(()=>{
-      let top=parseFloat(heart.style.top);
-      if(top>area.offsetHeight){heart.remove();clearInterval(fall);} else{heart.style.top=(top+3)+"px";}
-    },20);
-    heart.onclick=heart.ontouchstart=()=>{heart.remove();score++;scoreGames[0]++;updateScore();}
-  },500);
-  setTimeout(()=>{clearInterval(interval);document.getElementById("msg1").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
+// ===== Puzzle 4x4 =====
+function startPuzzle(){
+  const puzzleArea=document.getElementById("puzzleArea");
+  puzzleArea.innerHTML="";
+  const size=4;
+  let pieces=[];
+  for(let i=0;i<size*size;i++){pieces.push(i);}
+  shuffleArray(pieces);
+  let firstClick=null;
+  const pieceSize=80;
+
+  for(let i=0;i<pieces.length;i++){
+    const div=document.createElement("div");
+    div.className="puzzlePiece";
+    div.style.width=pieceSize+"px";
+    div.style.height=pieceSize+"px";
+    div.dataset.index=i;
+    div.dataset.value=pieces[i];
+    div.style.backgroundImage="url('ton_image.png')";
+    div.style.backgroundPosition=`${-(pieces[i]%size)*pieceSize}px ${-Math.floor(pieces[i]/size)*pieceSize}px`;
+    div.onclick=function(){
+      if(firstClick===null){firstClick=div;div.style.border="2px solid #ff4da6";}
+      else{
+        swapPieces(firstClick,div);
+        firstClick.style.border="1px solid #fff";
+        firstClick=null;
+      }
+    }
+    puzzleArea.appendChild(div);
+  }
+
+  let timeLeft=90;
+  const timerMsg=document.getElementById("msgPuzzle");
+  timerMsg.innerText=`Temps restant : ${timeLeft}s`;
+  const countdown=setInterval(()=>{
+    timeLeft--;
+    timerMsg.innerText=`Temps restant : ${timeLeft}s`;
+    if(timeLeft<=0){clearInterval(countdown);timerMsg.innerText="⏰ Temps écoulé ! Slide vers le jeu suivant ⬇️";}
+  },1000);
+}
+function swapPieces(a,b){
+  const tempValue=a.dataset.value;
+  a.dataset.value=b.dataset.value;
+  b.dataset.value=tempValue;
+  const tempPos=a.style.backgroundPosition;
+  a.style.backgroundPosition=b.style.backgroundPosition;
+  b.style.backgroundPosition=tempPos;
+}
+function shuffleArray(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
 }
 
-function startMiniGame2(){
-  const area=document.getElementById("gameArea2"); area.innerHTML="";
-  let interval=setInterval(()=>{
-    const c=document.createElement("div"); c.className="item"; c.innerText="🐱";
-    c.style.left=Math.random()*(area.offsetWidth-30)+"px"; c.style.top="-30px";
-    area.appendChild(c);
-    let fall=setInterval(()=>{
-      let top=parseFloat(c.style.top);
-      if(top>area.offsetHeight){c.remove();clearInterval(fall);} else{c.style.top=(top+3)+"px";}
-    },20);
-    c.onclick=c.ontouchstart=()=>{c.remove();score++;scoreGames[1]++;updateScore();}
-  },600);
-  setTimeout(()=>{clearInterval(interval);document.getElementById("msg2").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
-}
-
+// ===== Panier 20s =====
 function startMiniGame3(){
   const area=document.getElementById("gameArea3"); 
   area.innerHTML=""; 
@@ -232,21 +247,33 @@ function startMiniGame3(){
       }
     },20);
   },500);
-  setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
+  setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},20000);
 }
 
+// ===== Tic Tac Toe IA =====
 function startMiniGame4(){
-  const grid=document.getElementById("ticTacToe"); grid.innerHTML=""; let board=["","","","","","","","",""];
-  let current="🍣"; let time=15;
-  const timer=document.createElement("p"); timer.id="timerTTT"; timer.innerText=time; grid.parentNode.insertBefore(timer,grid);
+  const grid=document.getElementById("ticTacToe"); grid.innerHTML=""; 
+  let board=["","","","","","","","",""];
+  let player="🍣", ai="🐈";
+  const timer=document.createElement("p"); timer.id="timerTTT"; timer.innerText=15; grid.parentNode.insertBefore(timer,grid);
+  let time=15;
+
+  function checkWin(b,symbol){const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];return wins.some(w=>w.every(i=>b[i]===symbol));}
+  function aiMove(){let empty=[];board.forEach((v,i)=>{if(v==="") empty.push(i);}); if(empty.length===0) return; let choice=empty[Math.floor(Math.random()*empty.length)]; board[choice]=ai; grid.children[choice].innerText=ai; score++; scoreGames[3]++; updateScore();}
+  
   for(let i=0;i<9;i++){
     let c=document.createElement("div"); c.className="cell";
-    c.onclick=()=>{if(board[i]===""){board[i]=current;c.innerText=current;score++;scoreGames[3]++;updateScore(); current=current==="🍣"?"🐈":"🍣";}}
+    c.onclick=()=>{
+      if(board[i]===""){board[i]=player;c.innerText=player;score++; scoreGames[3]++; updateScore();
+      setTimeout(aiMove,1000);}
+    }
     grid.appendChild(c);
   }
+
   const countdown=setInterval(()=>{time--; timer.innerText=time; if(time<=0){clearInterval(countdown);document.getElementById("msg4").innerText="⬇️ Slide vers le message final ⬇️"; showFinal();}},1000);
 }
 
+// ===== Message final =====
 function showFinal(){
   const finalMsg=document.getElementById("finalMsg");
   finalMsg.innerText=
@@ -259,8 +286,7 @@ Tes réponses :
 - Film/Série : ${answers.film||"Non choisi"}
 
 Scores des jeux :
-- Cœurs : ${scoreGames[0]}
-- Chatons : ${scoreGames[1]}
+- Puzzle : 0
 - Panier : ${scoreGames[2]}
 - Tic Tac Toe : ${scoreGames[3]}
 
