@@ -23,21 +23,15 @@ h1,h2{margin-bottom:15px;text-align:center;}
 #basketFill{position:absolute;bottom:0;left:0;width:0%;height:30px;background:#ff4da6;border-radius:5px;pointer-events:none;}
 #ticTacToe{display:grid;grid-template-columns:repeat(3,80px);gap:5px;margin-top:20px;}
 .cell{width:80px;height:80px;background:#111a3a;color:white;font-size:30px;display:flex;justify-content:center;align-items:center;border:1px solid #ff4da6;}
-.messageNext{margin-top:20px;font-size:18px;color:#ffd6e8;text-align:center;}
+.messageNext{margin-top:40px;margin-bottom:10px;font-size:18px;color:#ffd6e8;text-align:center;} /* texte un peu plus bas */
 .finalHeart{position:absolute;font-size:30px;animation:floatUp 6s linear infinite;opacity:0.3;}
 @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
 .finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #finalPhoto{max-width:90%;max-height:80vh;border-radius:20px;margin:20px auto;display:block;}
-
-/* ===== Nouvelle section finale plus longue ===== */
-.section.finalSection {
-  height: auto;
-  min-height: 200vh; /* 2 écrans pour scroller plus bas */
-  justify-content: flex-start;
-  align-items: center;
-  position: relative;
-  padding: 50px 20px 500px 20px; /* gros padding en bas pour scroller encore plus */
-}
+.puzzleTile{cursor:pointer;border:1px solid #ff4da6;background-size:300% 300%;transition: transform 0.3s ease, border 0.3s ease;}
+.puzzleTile.selected{border:3px solid #ffd6e8;transform: scale(1.05);}
+#puzzleContainer{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:80%;height:50vh;margin:auto;gap:5px;}
+.section.finalSection{height:auto;min-height:200vh;justify-content:flex-start;align-items:center;position:relative;padding:50px 20px 500px 20px;}
 </style>
 </head>
 <body>
@@ -85,26 +79,27 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="answerAnim('film','Waves',this)">Waves</button>
 </section>
 
+<!-- ===== Puzzle 3x3 ===== -->
 <section class="section">
-  <h2>💖 Puzzle 3x3 💖</h2>
-  <div id="puzzleContainer" style="width:80%;height:50vh;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);grid-gap:5px;"></div>
-  <p class="messageNext" id="msg1" style="margin-top:20px;margin-bottom:10px;">Assemble le puzzle !</p>
-  <button onclick="startMiniGame1()">Lancer</button>
+<h2>💖 Puzzle 3x3 💖</h2>
+<div id="puzzleContainer"></div>
+<p class="messageNext" id="msg1">Assemble le puzzle !</p>
+<button onclick="startMiniGame1()">Lancer</button>
 </section>
 
 <section class="section">
-  <h2>🐱 Attrape les chatons !</h2>
-  <div id="gameArea2"></div>
-  <p class="messageNext" id="msg2" style="margin-top:20px;margin-bottom:10px;">Clique sur les chatons pour gagner des points !</p>
-  <button onclick="startMiniGame2()">Lancer</button>
+<h2>🐱 Attrape les chatons !</h2>
+<div id="gameArea2"></div>
+<p class="messageNext" id="msg2">Clique sur les chatons pour gagner des points !</p>
+<button onclick="startMiniGame2()">Lancer</button>
 </section>
 
 <section class="section">
-  <h2>🧺 Panier de cœurs !</h2>
-  <div id="gameArea3"></div>
-  <div id="basket">🧺<div id="basketFill"></div></div>
-  <p class="messageNext" id="msg3" style="margin-top:20px;margin-bottom:10px;">Attrape les cœurs dans le panier !</p>
-  <button onclick="startMiniGame3()">Lancer</button>
+<h2>🧺 Panier de cœurs !</h2>
+<div id="gameArea3"></div>
+<div id="basket">🧺<div id="basketFill"></div></div>
+<p class="messageNext" id="msg3">Attrape les cœurs dans le panier !</p>
+<button onclick="startMiniGame3()">Lancer</button>
 </section>
 
 <section class="section">
@@ -114,7 +109,6 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="startMiniGame4()">Lancer</button>
 </section>
 
-<!-- ===== Section finale longue ===== -->
 <section class="section finalSection">
 <h1>🌹 Ma Nestou 🌹</h1>
 <img id="finalPhoto" src="photo.jpg" alt="Nous deux">
@@ -123,14 +117,12 @@ h1,h2{margin-bottom:15px;text-align:center;}
 </div>
 
 <script>
-// ===== Variables =====
 let score=0, scoreGames=[0,0,0,0], answers={};
 let music=document.getElementById("music"), musicPlaying=false;
 function playMusic(){music.play();musicPlaying=true;}
 function toggleMusic(){if(musicPlaying){music.pause();musicPlaying=false;}else{music.play();musicPlaying=true;}}
 function updateScore(){document.getElementById("score").innerText=score;}
 
-// ===== Question animation =====
 function answerAnim(key,val,btn){
   answers[key]=val;
   const pop=document.createElement("div");
@@ -142,7 +134,6 @@ function answerAnim(key,val,btn){
   setTimeout(()=>pop.remove(),600);
 }
 
-// ===== Stars =====
 for(let i=0;i<100;i++){
   let s=document.createElement("div"); s.className="star";
   s.style.top=Math.random()*100+"%"; s.style.left=Math.random()*100+"%";
@@ -160,7 +151,7 @@ function shootingStar(){
 }
 setInterval(shootingStar,2000);
 
-// ===== Mini-jeux =====
+/* ===== Mini-jeu Puzzle 3x3 ===== */
 function startMiniGame1(){
   const container=document.getElementById("puzzleContainer");
   container.innerHTML="";
@@ -217,6 +208,8 @@ function startMiniGame1(){
     return true;
   }
 }
+
+/* ===== Mini-jeux restants ===== */
 function startMiniGame2(){
   const area=document.getElementById("gameArea2"); area.innerHTML="";
   let interval=setInterval(()=>{
@@ -238,8 +231,7 @@ function startMiniGame3(){
   const basket=document.getElementById("basket"); 
   const fill=document.getElementById("basketFill");
   basket.style.display="block"; 
-  fill.style.width="0%";
-  fill.style.height="30px";
+  fill.style.width="0%"; fill.style.height="30px";
   let collected=0;
   const maxCollect=30; 
   basket.onmousedown=basket.ontouchstart=(e)=>{
@@ -298,7 +290,7 @@ Tes réponses :
 - Film/Série : ${answers.film||"Non choisi"}
 
 Scores des jeux :
-- Cœurs : ${scoreGames[0]}
+- Puzzle : ${scoreGames[0]}
 - Chatons : ${scoreGames[1]}
 - Panier : ${scoreGames[2]}
 - Tic Tac Toe : ${scoreGames[3]}
