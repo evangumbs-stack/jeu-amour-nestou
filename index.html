@@ -17,22 +17,27 @@ h1,h2{margin-bottom:15px;text-align:center;}
 #stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;overflow:hidden;}
 .star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;}
 .shooting{position:absolute;width:3px;height:3px;background:white;border-radius:50%;box-shadow:0 0 10px white;}
-#gameArea,#gameArea2,#gameArea3,#puzzleArea{position:relative;width:100%;height:60vh;overflow:hidden;}
+#gameArea,#gameArea2,#gameArea3,#puzzleContainer{position:relative;width:100%;height:60vh;overflow:hidden;}
 .item{position:absolute;font-size:30px;cursor:pointer;}
 #basket{font-size:50px;position:absolute;bottom:180px;left:50%;transform:translateX(-50%);z-index:10;cursor:pointer;display:none;}
 #basketFill{position:absolute;bottom:0;left:0;width:0%;height:30px;background:#ff4da6;border-radius:5px;pointer-events:none;}
-#ticTacToe{display:grid;grid-template-columns:repeat(3,80px);gap:5px;margin-top:20px;}
-.cell{width:80px;height:80px;background:#111a3a;color:white;font-size:30px;display:flex;justify-content:center;align-items:center;border:1px solid #ff4da6;}
+#ticTacToe{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:20px;width:80%;max-width:300px;}
+.cell{aspect-ratio:1/1;background:#111a3a;color:white;font-size:2.5rem;display:flex;justify-content:center;align-items:center;border:1px solid #ff4da6;}
 .messageNext{margin-top:20px;font-size:18px;color:#ffd6e8;text-align:center;}
 .finalHeart{position:absolute;font-size:30px;animation:floatUp 6s linear infinite;opacity:0.3;}
 @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
 .finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #finalPhoto{max-width:90%;max-height:80vh;border-radius:20px;margin:20px auto;display:block;}
-.gameOverlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.gameOverlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:90%;max-width:400px;background:rgba(0,0,0,0.5);padding:20px;border-radius:15px;}
 .puzzleTile{cursor:pointer;border:1px solid #ff4da6;background-size:300% 300%;transition: transform 0.3s ease,border 0.3s ease;}
 .puzzleTile.selected{border:3px solid #ffd6e8;transform:scale(1.05);}
-#puzzleContainer{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:60%;height:60vh;margin:auto;gap:5px;}
+#puzzleContainer{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:80%;max-width:400px;height:60vh;margin:auto;gap:5px;}
 .section.finalSection{height:auto;min-height:250vh;justify-content:flex-start;align-items:center;position:relative;padding:50px 20px 500px 20px;}
+@media (max-width:500px){
+  #ticTacToe{width:90%;}
+  .cell{font-size:2rem;}
+  #puzzleContainer{width:90%;height:50vh;}
+}
 </style>
 </head>
 <body>
@@ -43,7 +48,6 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button style="position:fixed;top:50px;right:10px;z-index:10;" onclick="toggleMusic()">⏯️ Musique</button>
 
 <div class="container">
-<!-- Section intro -->
 <section class="section">
 <h1>💖 Jeu d'Amour pour Nestou 💖</h1>
 <p>Anne Esther, tu es mon trésor ✨💖</p>
@@ -175,13 +179,14 @@ setInterval(shootingStar,2000);
 // ===== Puzzle 3x3 =====
 function startPuzzleGame(){
   document.getElementById("puzzleOverlay").style.display="none";
-  const container = document.getElementById("puzzleContainer");
-  container.innerHTML = "";
-  const size = 3;
-  let tiles = [], firstTile = null;
-
+  const container=document.getElementById("puzzleContainer");
+  container.innerHTML="";
+  const size=3;
+  let tiles=[];
+  let firstTile=null;
+  // Création des tuiles
   for(let i=0;i<size*size;i++){
-    const tile = document.createElement("div");
+    const tile=document.createElement("div");
     tile.className="puzzleTile";
     tile.dataset.correct=i;
     tile.style.backgroundImage="url('ton_image.png')";
@@ -189,28 +194,27 @@ function startPuzzleGame(){
     container.appendChild(tile);
     tiles.push(tile);
   }
-
-  function shuffle(){
-    for(let i=tiles.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1));
-      [tiles[i].style.backgroundPosition, tiles[j].style.backgroundPosition]=[tiles[j].style.backgroundPosition, tiles[i].style.backgroundPosition];
-    }
+  // Mélange
+  for(let i=tiles.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    let tmpPos=tiles[i].style.backgroundPosition;
+    tiles[i].style.backgroundPosition=tiles[j].style.backgroundPosition;
+    tiles[j].style.backgroundPosition=tmpPos;
   }
-  shuffle();
-
   container.addEventListener("click",function(e){
     if(!e.target.classList.contains("puzzleTile")) return;
     const tile=e.target;
-    if(firstTile===null){firstTile=tile; firstTile.classList.add("selected");}
+    if(firstTile===null){firstTile=tile;firstTile.classList.add("selected");}
     else if(firstTile!==tile){
-      [firstTile.style.backgroundPosition, tile.style.backgroundPosition]=[tile.style.backgroundPosition, firstTile.style.backgroundPosition];
-      firstTile.classList.remove("selected");
-      firstTile=null;
-      score++; scoreGames[0]++; updateScore();
-      if(tiles.every(t=>t.style.backgroundPosition===t.dataset.correct.split(",").join("% ")+`%`)){
-        document.getElementById("msgPuzzle").innerText="🎉 Bravo ! Puzzle résolu !";
+      let temp=firstTile.style.backgroundPosition;
+      firstTile.style.backgroundPosition=tile.style.backgroundPosition;
+      tile.style.backgroundPosition=temp;
+      firstTile.classList.remove("selected");firstTile=null;
+      score++;scoreGames[0]++;updateScore();
+      if(tiles.every((t,i)=>t.style.backgroundPosition===(i%size)*(100/(size-1))+"% "+Math.floor(i/size)*(100/(size-1))+"%")){
+        document.getElementById("msgPuzzle").innerText="🎉 Bravo ! Puzzle résolu ! ⬇️ Slide vers le jeu suivant ⬇️";
       }
-    } else {firstTile.classList.remove("selected"); firstTile=null;}
+    } else {firstTile.classList.remove("selected");firstTile=null;}
   });
 }
 
@@ -220,8 +224,7 @@ function startMiniGame2(){
   const area=document.getElementById("gameArea2"); area.innerHTML="";
   let interval=setInterval(()=>{
     const c=document.createElement("div"); c.className="item"; c.innerText="🐱";
-    c.style.left=Math.random()*(area.offsetWidth-30)+"px"; c.style.top="-30px";
-    area.appendChild(c);
+    c.style.left=Math.random()*(area.offsetWidth-30)+"px"; c.style.top="-30px"; area.appendChild(c);
     let fall=setInterval(()=>{
       let top=parseFloat(c.style.top);
       if(top>area.offsetHeight){c.remove();clearInterval(fall);} else{c.style.top=(top+3)+"px";}
@@ -233,25 +236,11 @@ function startMiniGame2(){
 
 function startMiniGame3(){
   document.getElementById("game2Overlay").style.display="none";
-  const area=document.getElementById("gameArea3"); 
-  area.innerHTML=""; 
-  const basket=document.getElementById("basket"); 
-  const fill=document.getElementById("basketFill");
-  basket.style.display="block"; fill.style.width="0%";
-  let collected=0;
-  const maxCollect=30; 
-
-  basket.onmousedown=basket.ontouchstart=(e)=>{
-    let offsetX=(e.clientX||e.touches[0].clientX)-basket.offsetLeft; 
-    document.onmousemove=document.ontouchmove=(ev)=>{
-      let basketX=(ev.clientX||ev.touches[0].clientX)-offsetX;
-      if(basketX<0) basketX=0; 
-      if(basketX>area.offsetWidth-basket.offsetWidth) basketX=area.offsetWidth-basket.offsetWidth;
-      basket.style.left=basketX+"px";
-    }
-  };
-  document.onmouseup=document.ontouchend=()=>{document.onmousemove=null;document.ontouchmove=null;};
-
+  const area=document.getElementById("gameArea3"); area.innerHTML="";
+  const basket=document.getElementById("basket"); const fill=document.getElementById("basketFill");
+  basket.style.display="block"; fill.style.width="0%"; fill.style.height="30px";
+  let collected=0; const maxCollect=30;
+  basket.onmousedown=basket.ontouchstart=(e)=>{let offsetX=(e.clientX||e.touches[0].clientX)-basket.offsetLeft;document.onmousemove=document.ontouchmove=(ev)=>{let basketX=(ev.clientX||ev.touches[0].clientX)-offsetX;if(basketX<0) basketX=0; if(basketX>area.offsetWidth-basket.offsetWidth) basketX=area.offsetWidth-basket.offsetWidth; basket.style.left=basketX+"px";}};document.onmouseup=document.ontouchend=()=>{document.onmousemove=null;document.ontouchmove=null;};
   let interval=setInterval(()=>{
     const h=document.createElement("div"); h.className="item"; h.innerText="💖";
     h.style.left=Math.random()*(area.offsetWidth-30)+"px"; h.style.top="-30px"; area.appendChild(h);
@@ -260,8 +249,7 @@ function startMiniGame3(){
       if(top>area.offsetHeight){h.remove();clearInterval(fall);}
       else{
         h.style.top=(top+3)+"px";
-        const hRect=h.getBoundingClientRect(); 
-        const bRect=basket.getBoundingClientRect();
+        const hRect=h.getBoundingClientRect(); const bRect=basket.getBoundingClientRect();
         if(!(hRect.right<bRect.left||hRect.left>bRect.right||hRect.bottom<bRect.top||hRect.top>bRect.bottom)){
           h.remove(); clearInterval(fall); collected++; score++; scoreGames[2]++; updateScore();
           fill.style.width=Math.min(100,(collected/maxCollect*100))+"%";
@@ -275,52 +263,32 @@ function startMiniGame3(){
 // ===== Tic Tac Toe IA =====
 function startMiniGame4(){
   document.getElementById("tttOverlay").style.display="none";
-  const grid=document.getElementById("ticTacToe"); grid.style.display="grid"; grid.innerHTML="";
-  let board=["","","","","","","","",""]; 
-  let player="🍣", ai="🐈";
-
+  const grid=document.getElementById("ticTacToe"); grid.innerHTML=""; let board=["","","","","","","","",""];
+  let current="🍣"; 
   for(let i=0;i<9;i++){
     let c=document.createElement("div"); c.className="cell";
-    c.onclick=()=>{if(board[i]===""){playerMove(i);}}
+    c.onclick=()=>{if(board[i]===""){board[i]=current;c.innerText=current;score++;scoreGames[3]++;updateScore();currentPlay();}}
     grid.appendChild(c);
   }
-
-  function playerMove(index){
-    board[index]=player; grid.children[index].innerText=player; score++; scoreGames[3]++; updateScore();
-    if(checkWin(player)){setTimeout(()=>alert("🎉 Tu as gagné !"),50); return;}
-    if(board.every(c=>c!=="")) return;
-    setTimeout(aiMove,1000+Math.random()*1000);
+  function currentPlay(){
+    current="🐈";
+    setTimeout(IAPlay,1000+Math.random()*1000);
   }
-
-  function aiMove(){
-    let move=-1;
-    move=findBestMove(ai) || findBestMove(player) || randomMove();
-    if(move>=0){board[move]=ai; grid.children[move].innerText=ai;}
-    if(checkWin(ai)){setTimeout(()=>alert("💻 IA a gagné !"),50); return;}
+  function IAPlay(){
+    const emptyCells=board.map((v,i)=>v===""?i:-1).filter(v=>v!==-1);
+    if(emptyCells.length===0) return finishTTT();
+    const move=emptyCells[Math.floor(Math.random()*emptyCells.length)];
+    board[move]="🐈";
+    grid.children[move].innerText="🐈";
+    score++; scoreGames[3]++; updateScore();
+    current="🍣";
+    if(board.includes("")) return;
+    finishTTT();
   }
-
-  function findBestMove(sym){
-    const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    for(let line of wins){
-      let vals=line.map(i=>board[i]);
-      if(vals.filter(v=>v===sym).length===2 && vals.includes("")) return line[vals.indexOf("")];
-    }
-    return null;
-  }
-
-  function randomMove(){
-    let empty=[]; for(let i=0;i<9;i++) if(board[i]==="") empty.push(i);
-    if(empty.length===0) return -1;
-    return empty[Math.floor(Math.random()*empty.length)];
-  }
-
-  function checkWin(player){
-    const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-    return wins.some(arr=>arr.every(i=>board[i]===player));
-  }
+  function finishTTT(){document.getElementById("msg4").innerText="⬇️ Slide vers le message final ⬇️"; showFinal();}
 }
 
-// ===== Section finale =====
+// ===== Message final =====
 function showFinal(){
   const finalMsg=document.getElementById("finalMsg");
   finalMsg.innerText=
@@ -343,16 +311,9 @@ Score total : ${score}
 Chaque moment avec toi est précieux : nos Lego, nos plages, nos couchers de soleil, nos voyages, nos sushis, nos séries… tout est plus beau avec toi.
 Merci pour ton amour, ta patience et ta douceur. Tu es mon bonheur, mon refuge et mon cœur. 💖`;
 
-  for(let i=0;i<50;i++){
-    let h=document.createElement("div"); h.className="finalHeart"; h.innerText="💖";
-    h.style.left=Math.random()*100+"%"; h.style.top=Math.random()*100+"%"; document.body.appendChild(h);
-  }
+  for(let i=0;i<50;i++){let h=document.createElement("div"); h.className="finalHeart"; h.innerText="💖"; h.style.left=Math.random()*100+"%"; h.style.top=Math.random()*100+"%"; document.body.appendChild(h);}
   const words=["💖Je t’aime💖","🌹Mon trésor🌹","💕Ma Nestou💕"];
-  for(let i=0;i<30;i++){
-    let w=document.createElement("div"); w.className="finalWord";
-    w.innerText=words[Math.floor(Math.random()*words.length)];
-    w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; document.body.appendChild(w);
-  }
+  for(let i=0;i<30;i++){let w=document.createElement("div"); w.className="finalWord"; w.innerText=words[Math.floor(Math.random()*words.length)]; w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; document.body.appendChild(w);}
 }
 </script>
 </body>
