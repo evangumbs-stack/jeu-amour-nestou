@@ -8,8 +8,8 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 body{background:black;color:white;overflow:hidden;position:relative;}
 .container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;}
-.section{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
-.section.puzzleSection{height:auto; min-height:70vh; justify-content:center; padding:20px 0;} /* section puzzle adaptée */
+.section{min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; scroll-snap-align:start;}
+.section.puzzleSection{justify-content:center;}
 button{padding:12px 20px;margin:10px;border:none;border-radius:10px;background:#ff4da6;color:white;font-size:16px;cursor:pointer;}
 h1,h2{margin-bottom:15px;text-align:center;}
 .score{position:fixed;top:10px;right:10px;background:#ff4da6;padding:10px;border-radius:10px;z-index:10;}
@@ -18,9 +18,8 @@ h1,h2{margin-bottom:15px;text-align:center;}
 #stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;overflow:hidden;}
 .star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;}
 .shooting{position:absolute;width:3px;height:3px;background:white;border-radius:50%;box-shadow:0 0 10px white;}
-#gameArea2,#gameArea3{position:relative;width:100%;height:60vh;overflow:hidden;}
-#puzzleContainer{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);width:80%;height:45vh;margin:auto;gap:5px;}
-.cellPuzzle{background-size:cover;background-position:center;cursor:pointer;}
+#gameArea,#gameArea2,#gameArea3,#puzzleArea{position:relative;width:90%;max-width:500px; height:60vh;overflow:hidden; display:flex; flex-wrap:wrap; justify-content:center; align-items:center;}
+.item{position:absolute;font-size:30px;cursor:pointer;}
 #basket{font-size:50px;position:absolute;bottom:180px;left:50%;transform:translateX(-50%);z-index:10;cursor:pointer;display:none;}
 #basketFill{position:absolute;bottom:0;left:0;width:0%;height:30px;background:#ff4da6;border-radius:5px;pointer-events:none;}
 #ticTacToe{display:grid;grid-template-columns:repeat(3,80px);gap:5px;margin-top:20px;}
@@ -30,6 +29,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
 .finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #finalPhoto{max-width:90%;max-height:80vh;border-radius:20px;margin:20px auto;display:block;}
+.puzzlePiece{width:calc(25% - 4px); height:calc(25% - 4px); margin:2px; background-size:400% 400%; cursor:pointer; border:1px solid #fff;}
 </style>
 </head>
 <body>
@@ -79,9 +79,9 @@ h1,h2{margin-bottom:15px;text-align:center;}
 
 <section class="section puzzleSection">
 <h2>💖 Puzzle 4x4 💖</h2>
-<div id="puzzleContainer"></div>
-<p class="messageNext" id="msg1"></p>
-<button onclick="startMiniGame1()">Lancer</button>
+<div id="puzzleArea"></div>
+<p class="messageNext" id="msgPuzzle"></p>
+<button onclick="startPuzzle()">Lancer le puzzle</button>
 </section>
 
 <section class="section">
@@ -151,69 +151,51 @@ function shootingStar(){
 }
 setInterval(shootingStar,2000);
 
-// ===== Mini-jeu Puzzle 4x4 =====
-let puzzleTiles=[], firstTile=null, puzzleTimer;
-function startMiniGame1(){
-  const container=document.getElementById("puzzleContainer");
-  container.innerHTML="";
-  puzzleTiles=[];
-  const size=4;
-  let numbers=Array.from({length:size*size},(_,i)=>i);
-  numbers.sort(()=>Math.random()-0.5);
-
-  for(let i=0;i<size*size;i++){
-    let div=document.createElement("div");
-    div.className="cellPuzzle";
-    div.style.backgroundImage="url('puzzle.png')";
-    div.dataset.index=numbers[i];
-    div.style.backgroundPosition=`${(numbers[i]%size)*(100/(size-1))}% ${(Math.floor(numbers[i]/size))*(100/(size-1))}%`;
-    div.onclick=()=>selectTile(div);
-    container.appendChild(div);
-    puzzleTiles.push(div);
+// ===== Puzzle 4x4 =====
+let puzzlePieces=[], firstPiece=null, puzzleTimer;
+function startPuzzle(){
+  const area=document.getElementById("puzzleArea");
+  area.innerHTML=""; puzzlePieces=[]; firstPiece=null; 
+  const size=4; // 4x4
+  let numbers=[];
+  for(let i=0;i<size*size;i++) numbers.push(i);
+  numbers.sort(()=>Math.random()-0.5); // mélange
+  for(let i=0;i<numbers.length;i++){
+    let p=document.createElement("div");
+    p.className="puzzlePiece";
+    p.style.backgroundImage='url("IMAGE_PUZZLE.png")';
+    let row=Math.floor(numbers[i]/size), col=numbers[i]%size;
+    p.style.backgroundPosition=`${col*25}% ${row*25}%`;
+    p.dataset.index=i;
+    p.onclick=()=>{handlePuzzleClick(p);}
+    puzzlePieces.push(p); area.appendChild(p);
   }
-
-  let time=90; // 1min30
-  const timer=document.createElement("p");
-  timer.id="timerPuzzle";
-  timer.innerText=time;
-  container.parentNode.insertBefore(timer,container);
+  document.getElementById("msgPuzzle").innerText="Résous le puzzle en 1min30 !";
+  let timeLeft=90;
   clearInterval(puzzleTimer);
   puzzleTimer=setInterval(()=>{
-    time--;
-    timer.innerText=time;
-    if(time<=0){clearInterval(puzzleTimer);document.getElementById("msg1").innerText="Temps écoulé ! ⬇️ Slide vers le jeu suivant ⬇️"; showFinal();}
+    timeLeft--;
+    if(timeLeft<=0){clearInterval(puzzleTimer); document.getElementById("msgPuzzle").innerText="Temps écoulé !"; checkPuzzle();}
   },1000);
 }
 
-function selectTile(tile){
-  if(!firstTile){
-    firstTile=tile;
-    tile.style.outline="2px solid #ff4da6";
-  } else if(firstTile===tile){
-    firstTile.style.outline="none";
-    firstTile=null;
-  } else {
-    // Échange les positions
-    let temp=firstTile.style.backgroundPosition;
-    firstTile.style.backgroundPosition=tile.style.backgroundPosition;
-    tile.style.backgroundPosition=temp;
+function handlePuzzleClick(piece){
+  if(!firstPiece){firstPiece=piece; piece.style.border="2px solid #ff4da6"; return;}
+  // échange positions
+  let tempPos=firstPiece.style.order || firstPiece.dataset.index;
+  firstPiece.style.order = piece.style.order || piece.dataset.index;
+  piece.style.order = tempPos;
+  firstPiece.style.border="1px solid #fff";
+  firstPiece=null;
+  checkPuzzle();
+}
 
-    let tempIndex=firstTile.dataset.index;
-    firstTile.dataset.index=tile.dataset.index;
-    tile.dataset.index=tempIndex;
-
-    firstTile.style.outline="none";
-    firstTile=null;
-    score++;
-    scoreGames[0]++;
-    updateScore();
-
-    // Vérifie si puzzle terminé
-    if(puzzleTiles.every((t,i)=>t.dataset.index==i)){
-      clearInterval(puzzleTimer);
-      document.getElementById("msg1").innerText="Puzzle terminé ! 💖⬇️ Slide vers le jeu suivant ⬇️";
-    }
+function checkPuzzle(){
+  let correct=true;
+  for(let i=0;i<puzzlePieces.length;i++){
+    if((puzzlePieces[i].style.order || puzzlePieces[i].dataset.index) != i){correct=false; break;}
   }
+  if(correct){document.getElementById("msgPuzzle").innerText="🎉 Puzzle terminé !"; score+=10; scoreGames[0]++; updateScore(); clearInterval(puzzleTimer);}
 }
 
 // ===== Mini-jeu chatons =====
@@ -232,29 +214,22 @@ function startMiniGame2(){
   setTimeout(()=>{clearInterval(interval);document.getElementById("msg2").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
 }
 
-// ===== Mini-jeu panier =====
+// ===== Mini-jeu panier 20s =====
 function startMiniGame3(){
-  const area=document.getElementById("gameArea3"); 
-  area.innerHTML=""; 
+  const area=document.getElementById("gameArea3"); area.innerHTML=""; 
   const basket=document.getElementById("basket"); 
   const fill=document.getElementById("basketFill");
-  basket.style.display="block"; 
-  fill.style.width="0%";
-  fill.style.height="30px";
-  let collected=0;
-  const maxCollect=30; 
-
+  basket.style.display="block"; fill.style.width="0%"; fill.style.height="30px";
+  let collected=0; const maxCollect=30; 
   basket.onmousedown=basket.ontouchstart=(e)=>{
     let offsetX=(e.clientX||e.touches[0].clientX)-basket.offsetLeft; 
     document.onmousemove=document.ontouchmove=(ev)=>{
       let basketX=(ev.clientX||ev.touches[0].clientX)-offsetX;
-      if(basketX<0) basketX=0; 
-      if(basketX>area.offsetWidth-basket.offsetWidth) basketX=area.offsetWidth-basket.offsetWidth;
+      if(basketX<0) basketX=0; if(basketX>area.offsetWidth-basket.offsetWidth) basketX=area.offsetWidth-basket.offsetWidth;
       basket.style.left=basketX+"px";
     }
   };
   document.onmouseup=document.ontouchend=()=>{document.onmousemove=null;document.ontouchmove=null;};
-
   let interval=setInterval(()=>{
     const h=document.createElement("div"); h.className="item"; h.innerText="💖";
     h.style.left=Math.random()*(area.offsetWidth-30)+"px"; h.style.top="-30px"; area.appendChild(h);
@@ -263,30 +238,50 @@ function startMiniGame3(){
       if(top>area.offsetHeight){h.remove();clearInterval(fall);}
       else{
         h.style.top=(top+3)+"px";
-        const hRect=h.getBoundingClientRect(); 
-        const bRect=basket.getBoundingClientRect();
+        const hRect=h.getBoundingClientRect(); const bRect=basket.getBoundingClientRect();
         if(!(hRect.right<bRect.left||hRect.left>bRect.right||hRect.bottom<bRect.top||hRect.top>bRect.bottom)){
-          h.remove(); clearInterval(fall); 
-          collected++; score++; scoreGames[2]++; updateScore();
+          h.remove(); clearInterval(fall); collected++; score++; scoreGames[2]++; updateScore();
           fill.style.width=Math.min(100,(collected/maxCollect*100))+"%";
         }
       }
     },20);
   },500);
-  setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
+  setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},20000);
 }
 
-// ===== Tic Tac Toe =====
+// ===== Tic Tac Toe vs IA =====
 function startMiniGame4(){
   const grid=document.getElementById("ticTacToe"); grid.innerHTML=""; let board=["","","","","","","","",""];
-  let current="🍣"; let time=15;
-  const timer=document.createElement("p"); timer.id="timerTTT"; timer.innerText=time; grid.parentNode.insertBefore(timer,grid);
+  let human="🍣", ai="🐈", current=human;
+  let time=15; const timer=document.createElement("p"); timer.id="timerTTT"; timer.innerText=time; grid.parentNode.insertBefore(timer,grid);
   for(let i=0;i<9;i++){
     let c=document.createElement("div"); c.className="cell";
-    c.onclick=()=>{if(board[i]===""){board[i]=current;c.innerText=current;score++;scoreGames[3]++;updateScore(); current=current==="🍣"?"🐈":"🍣";}}
+    c.onclick=()=>{if(board[i]==="" && current===human){board[i]=human;c.innerText=human;score++;scoreGames[3]++;updateScore(); if(!checkTTTWin()) aiMove();}}
     grid.appendChild(c);
   }
   const countdown=setInterval(()=>{time--; timer.innerText=time; if(time<=0){clearInterval(countdown);document.getElementById("msg4").innerText="⬇️ Slide vers le message final ⬇️"; showFinal();}},1000);
+
+  function aiMove(){
+    current=ai;
+    setTimeout(()=>{
+      let emptyCells=[];
+      for(let i=0;i<9;i++) if(board[i]==="") emptyCells.push(i);
+      if(emptyCells.length===0) return;
+      let move=emptyCells[Math.floor(Math.random()*emptyCells.length)];
+      board[move]=ai;
+      grid.children[move].innerText=ai;
+      score++; scoreGames[3]++; updateScore();
+      checkTTTWin(); current=human;
+    },1000+Math.random()*1000);
+  }
+
+  function checkTTTWin(){
+    const winComb=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for(let c of winComb){
+      if(board[c[0]]!=="" && board[c[0]]===board[c[1]] && board[c[0]]===board[c[2]]) return true;
+    }
+    return false;
+  }
 }
 
 // ===== Message final =====
@@ -314,15 +309,4 @@ Merci pour ton amour, ta patience et ta douceur. Tu es mon bonheur, mon refuge e
 
   for(let i=0;i<50;i++){
     let h=document.createElement("div"); h.className="finalHeart"; h.innerText="💖";
-    h.style.left=Math.random()*100+"%"; h.style.top=Math.random()*100+"%"; document.body.appendChild(h);
-  }
-  const words=["💖Je t’aime💖","🌹Mon trésor🌹","💕Ma Nestou💕"];
-  for(let i=0;i<30;i++){
-    let w=document.createElement("div"); w.className="finalWord";
-    w.innerText=words[Math.floor(Math.random()*words.length)];
-    w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; document.body.appendChild(w);
-  }
-}
-</script>
-</body>
-</html>
+    h.style
