@@ -12,32 +12,21 @@ body{background:black;color:white;overflow-x:hidden;position:relative;}
 button{padding:12px 20px;margin:10px;border:none;border-radius:10px;background:#ff4da6;color:white;font-size:16px;cursor:pointer;}
 h1,h2{margin-bottom:15px;text-align:center;}
 .score{position:fixed;top:10px;right:10px;background:#ff4da6;padding:10px;border-radius:10px;z-index:10;}
-.popHeart{position:absolute;font-size:25px;animation:pop 0.6s ease-out;}
-@keyframes pop{0%{transform:scale(0);opacity:1;}50%{transform:scale(1.3);}100%{transform:scale(0);opacity:0;}}
+.messageNext{margin-top:250px;font-size:18px;color:#ffd6e8;text-align:center;}
+.finalHeart{position:absolute;font-size:30px;animation:floatUp 6s linear infinite;opacity:0.3;}
+@keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
+.finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;overflow:hidden;}
 .star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;}
 .shooting{position:absolute;width:3px;height:3px;background:white;border-radius:50%;box-shadow:0 0 10px white;}
-#gameArea,#gameArea2,#gameArea3{position:relative;width:100%;height:60vh;overflow:hidden;}
-.item{position:absolute;font-size:30px;cursor:pointer;}
+#puzzle{position:relative;width:300px;height:300px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;}
+.piece{width:100%;height:100%;background-size:300px 300px;cursor:pointer;}
 #basket{font-size:50px;position:absolute;bottom:180px;left:50%;transform:translateX(-50%);z-index:10;cursor:pointer;display:none;}
 #basketFill{position:absolute;bottom:0;left:0;width:0%;height:30px;background:#ff4da6;border-radius:5px;pointer-events:none;}
 #ticTacToe{display:grid;grid-template-columns:repeat(3,80px);gap:5px;margin-top:20px;}
 .cell{width:80px;height:80px;background:#111a3a;color:white;font-size:30px;display:flex;justify-content:center;align-items:center;border:1px solid #ff4da6;}
-.messageNext{margin-top:20px;font-size:18px;color:#ffd6e8;text-align:center;}
-.finalHeart{position:absolute;font-size:30px;animation:floatUp 6s linear infinite;opacity:0.3;}
-@keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
-.finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #finalPhoto{max-width:90%;max-height:80vh;border-radius:20px;margin:20px auto;display:block;}
-
-/* ===== Nouvelle section finale plus longue ===== */
-.section.finalSection {
-  height: auto;
-  min-height: 200vh; /* 2 écrans pour scroller plus bas */
-  justify-content: flex-start;
-  align-items: center;
-  position: relative;
-  padding: 50px 20px 500px 20px; /* gros padding en bas pour scroller encore plus */
-}
+.section.finalSection {height:auto;min-height:200vh;justify-content:flex-start;align-items:center;position:relative;padding:50px 20px 500px 20px;}
 </style>
 </head>
 <body>
@@ -49,12 +38,13 @@ h1,h2{margin-bottom:15px;text-align:center;}
 
 <div class="container">
 <section class="section">
-<h1>💖 Jeu d'Amour pour Nestou 💖</h1>
-<p>Anne Esther, tu es mon trésor ✨💖</p>
-<button onclick="playMusic()">🎵 Lancer la musique</button>
+<h1 id="startTitle">💖 Jeu d'Amour pour Nestou 💖</h1>
+<p id="startText">Anne Esther, tu es mon trésor ✨💖</p>
+<button id="startBtn" onclick="startGame()">🎵 Lancer la musique</button>
 <p>Défile vers le bas ⬇️</p>
 </section>
 
+<!-- Questions classiques -->
 <section class="section">
 <h2>Moment préféré ensemble ? 😏</h2>
 <button onclick="answerAnim('moment','Miguel 🎶',this)">Miguel 🎶</button>
@@ -74,8 +64,9 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <section class="section">
 <h2>Ton surnom préféré ? 😘</h2>
 <button onclick="answerAnim('surnom','Ma Nestou 💖',this)">Ma Nestou 💖</button>
-<button onclick="answerAnim('surnom','Mon trésor 💎',this)">Mon trésor 💎</button>
-<button onclick="answerAnim('surnom','Mon amour ❤️',this)">Mon amour ❤️</button>
+<button onclick="answerAnim('surnom','Ma princesse 👑',this)">Ma princesse 👑</button>
+<button onclick="answerAnim('surnom','Mon amour 💕',this)">Mon amour 💕</button>
+<button onclick="answerAnim('surnom','Mon cœur ❤️',this)">Mon coeur ❤️</button>
 </section>
 
 <section class="section">
@@ -85,13 +76,15 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="answerAnim('film','Waves',this)">Waves</button>
 </section>
 
+<!-- Puzzle 3x3 -->
 <section class="section">
-<h2>💖 Attrape les cœurs !</h2>
-<div id="gameArea"></div>
+<h2>💖 Recompose la photo !</h2>
+<div id="puzzle"></div>
 <p class="messageNext" id="msg1"></p>
-<button onclick="startMiniGame1()">Lancer</button>
+<button id="puzzleBtn" onclick="startPuzzle()">Lancer</button>
 </section>
 
+<!-- Chatons -->
 <section class="section">
 <h2>🐱 Attrape les chatons !</h2>
 <div id="gameArea2"></div>
@@ -99,6 +92,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="startMiniGame2()">Lancer</button>
 </section>
 
+<!-- Panier -->
 <section class="section">
 <h2>🧺 Panier de cœurs !</h2>
 <div id="gameArea3"></div>
@@ -107,6 +101,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="startMiniGame3()">Lancer</button>
 </section>
 
+<!-- Tic Tac Toe -->
 <section class="section">
 <h2>❌ Tic Tac Toe 💕</h2>
 <div id="ticTacToe"></div>
@@ -114,7 +109,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="startMiniGame4()">Lancer</button>
 </section>
 
-<!-- ===== Section finale longue ===== -->
+<!-- Section finale -->
 <section class="section finalSection">
 <h1>🌹 Ma Nestou 🌹</h1>
 <img id="finalPhoto" src="photo.jpg" alt="Nous deux">
@@ -123,14 +118,16 @@ h1,h2{margin-bottom:15px;text-align:center;}
 </div>
 
 <script>
-// ===== Variables =====
+// Variables globales
 let score=0, scoreGames=[0,0,0,0], answers={};
 let music=document.getElementById("music"), musicPlaying=false;
+
+// Musique
 function playMusic(){music.play();musicPlaying=true;}
 function toggleMusic(){if(musicPlaying){music.pause();musicPlaying=false;}else{music.play();musicPlaying=true;}}
 function updateScore(){document.getElementById("score").innerText=score;}
 
-// ===== Question animation =====
+// Animation réponse
 function answerAnim(key,val,btn){
   answers[key]=val;
   const pop=document.createElement("div");
@@ -142,7 +139,7 @@ function answerAnim(key,val,btn){
   setTimeout(()=>pop.remove(),600);
 }
 
-// ===== Stars =====
+// Stars
 for(let i=0;i<100;i++){
   let s=document.createElement("div"); s.className="star";
   s.style.top=Math.random()*100+"%"; s.style.left=Math.random()*100+"%";
@@ -160,22 +157,56 @@ function shootingStar(){
 }
 setInterval(shootingStar,2000);
 
-// ===== Mini-jeux =====
-function startMiniGame1(){
-  const area=document.getElementById("gameArea"); area.innerHTML="";
-  let interval=setInterval(()=>{
-    const heart=document.createElement("div"); heart.className="item"; heart.innerText="💖";
-    heart.style.left=Math.random()*(area.offsetWidth-30)+"px"; heart.style.top="-30px";
-    area.appendChild(heart);
-    let fall=setInterval(()=>{
-      let top=parseFloat(heart.style.top);
-      if(top>area.offsetHeight){heart.remove();clearInterval(fall);} else{heart.style.top=(top+3)+"px";}
-    },20);
-    heart.onclick=heart.ontouchstart=()=>{heart.remove();score++;scoreGames[0]++;updateScore();}
-  },500);
-  setTimeout(()=>{clearInterval(interval);document.getElementById("msg1").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
+// ===== Début du jeu avec animation initiale =====
+function startGame(){
+  playMusic();
+  document.getElementById("startTitle").style.display="none";
+  document.getElementById("startText").style.display="none";
+  document.getElementById("startBtn").style.display="none";
 }
 
+// ===== Puzzle 3x3 =====
+let puzzleCorrect=0;
+function startPuzzle(){
+  const puzzle=document.getElementById("puzzle");
+  puzzle.innerHTML="";
+  const imgSrc="photo.png"; // Ta photo en PNG
+  let pieces=[];
+  for(let i=0;i<9;i++){
+    const piece=document.createElement("div");
+    piece.className="piece";
+    piece.style.backgroundImage=`url(${imgSrc})`;
+    piece.style.backgroundPosition=`${-(i%3)*100}px ${-Math.floor(i/3)*100}px`;
+    piece.dataset.index=i;
+    piece.onclick=()=>{
+      // échange avec pièce vide
+      const emptyIndex=pieces.findIndex(p=>p.dataset.empty==="true");
+      if(Math.abs(emptyIndex-i)===1 || Math.abs(emptyIndex-i)===3){
+        let tempPos=pieces[emptyIndex].style.backgroundPosition;
+        pieces[emptyIndex].style.backgroundPosition=piece.style.backgroundPosition;
+        piece.style.backgroundPosition=tempPos;
+        if(checkPuzzle()) {score++; scoreGames[0]++; updateScore(); document.getElementById("msg1").innerText="⬇️ Slide vers le jeu suivant ⬇️";}
+      }
+    };
+    pieces.push(piece);
+    puzzle.appendChild(piece);
+  }
+  // définir une pièce vide
+  pieces[8].dataset.empty="true";
+  pieces[8].style.backgroundImage="none";
+}
+function checkPuzzle(){
+  const puzzle=document.getElementById("puzzle");
+  let correct=0;
+  for(let i=0;i<9;i++){
+    const pos=puzzle.children[i].style.backgroundPosition;
+    const x=-(i%3)*100 + "px " + -Math.floor(i/3)*100 + "px";
+    if(pos===x) correct++;
+  }
+  return correct===9;
+}
+
+// ===== Mini-jeux Chatons & Panier (20s pour panier) =====
 function startMiniGame2(){
   const area=document.getElementById("gameArea2"); area.innerHTML="";
   let interval=setInterval(()=>{
@@ -196,11 +227,8 @@ function startMiniGame3(){
   area.innerHTML=""; 
   const basket=document.getElementById("basket"); 
   const fill=document.getElementById("basketFill");
-  basket.style.display="block"; 
-  fill.style.width="0%";
-  fill.style.height="30px";
-  let collected=0;
-  const maxCollect=30; 
+  basket.style.display="block"; fill.style.width="0%"; fill.style.height="30px";
+  let collected=0; const maxCollect=30; 
   basket.onmousedown=basket.ontouchstart=(e)=>{
     let offsetX=(e.clientX||e.touches[0].clientX)-basket.offsetLeft; 
     document.onmousemove=document.ontouchmove=(ev)=>{
@@ -211,7 +239,6 @@ function startMiniGame3(){
     }
   };
   document.onmouseup=document.ontouchend=()=>{document.onmousemove=null;document.ontouchmove=null;};
-
   let interval=setInterval(()=>{
     const h=document.createElement("div"); h.className="item"; h.innerText="💖";
     h.style.left=Math.random()*(area.offsetWidth-30)+"px"; h.style.top="-30px"; area.appendChild(h);
@@ -220,31 +247,51 @@ function startMiniGame3(){
       if(top>area.offsetHeight){h.remove();clearInterval(fall);}
       else{
         h.style.top=(top+3)+"px";
-        const hRect=h.getBoundingClientRect(); 
-        const bRect=basket.getBoundingClientRect();
+        const hRect=h.getBoundingClientRect(); const bRect=basket.getBoundingClientRect();
         if(!(hRect.right<bRect.left||hRect.left>bRect.right||hRect.bottom<bRect.top||hRect.top>bRect.bottom)){
-          h.remove(); clearInterval(fall); 
-          collected++; score++; scoreGames[2]++; updateScore();
+          h.remove(); clearInterval(fall); collected++; score++; scoreGames[2]++; updateScore();
           fill.style.width=Math.min(100,(collected/maxCollect*100))+"%";
         }
       }
     },20);
   },500);
-  setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
+  setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},20000);
 }
 
+// ===== Tic Tac Toe IA simple =====
 function startMiniGame4(){
-  const grid=document.getElementById("ticTacToe"); grid.innerHTML=""; let board=["","","","","","","","",""];
-  let current="🍣"; let time=15;
-  const timer=document.createElement("p"); timer.id="timerTTT"; timer.innerText=time; grid.parentNode.insertBefore(timer,grid);
+  const grid=document.getElementById("ticTacToe"); grid.innerHTML=""; 
+  let board=["","","","","","","","",""];
+  let current="🍣";
   for(let i=0;i<9;i++){
     let c=document.createElement("div"); c.className="cell";
-    c.onclick=()=>{if(board[i]===""){board[i]=current;c.innerText=current;score++;scoreGames[3]++;updateScore(); current=current==="🍣"?"🐈":"🍣";}}
+    c.onclick=()=>{if(board[i]===""){board[i]=current;c.innerText=current;score++;scoreGames[3]++;updateScore(); current="🐈"; aiMove(); checkWin();}}
     grid.appendChild(c);
   }
-  const countdown=setInterval(()=>{time--; timer.innerText=time; if(time<=0){clearInterval(countdown);document.getElementById("msg4").innerText="⬇️ Slide vers le message final ⬇️"; showFinal();}},1000);
 }
 
+function aiMove(){
+  const empty=Array.from(document.querySelectorAll(".cell")).filter((c,i)=>c.innerText==="");
+  if(empty.length===0) return;
+  const move=empty[Math.floor(Math.random()*empty.length)];
+  move.innerText="🐈";
+}
+
+function checkWin(){
+  const cells=document.querySelectorAll(".cell");
+  const combos=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for(let combo of combos){
+    const [a,b,c]=combo;
+    if(cells[a].innerText && cells[a].innerText===cells[b].innerText && cells[b].innerText===cells[c].innerText){
+      document.getElementById("msg4").innerText=(cells[a].innerText==="🍣"?"🎉 Tu as gagné !":"😿 Tu as perdu !")+" ⬇️ Slide vers le message final ⬇️";
+      setTimeout(showFinal,2000);
+      return;
+    }
+  }
+  if(Array.from(cells).every(c=>c.innerText!=="")){document.getElementById("msg4").innerText="Égalité ⬇️ Slide vers le message final ⬇️"; setTimeout(showFinal,2000);}
+}
+
+// ===== Fin =====
 function showFinal(){
   const finalMsg=document.getElementById("finalMsg");
   finalMsg.innerText=
@@ -257,7 +304,7 @@ Tes réponses :
 - Film/Série : ${answers.film||"Non choisi"}
 
 Scores des jeux :
-- Cœurs : ${scoreGames[0]}
+- Puzzle : ${scoreGames[0]}
 - Chatons : ${scoreGames[1]}
 - Panier : ${scoreGames[2]}
 - Tic Tac Toe : ${scoreGames[3]}
@@ -274,8 +321,10 @@ Merci pour ton amour, ta patience et ta douceur. Tu es mon bonheur, mon refuge e
   const words=["💖Je t’aime💖","🌹Mon trésor🌹","💕Ma Nestou💕"];
   for(let i=0;i<30;i++){
     let w=document.createElement("div"); w.className="finalWord";
-    w.innerText=words[Math.floor(Math.random()*words.length)];
-    w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; document.body.appendChild(w);
+    w.innerText = words[Math.floor(Math.random()*words.length)];
+    w.style.left = Math.random()*100 + "%";
+    w.style.top  = Math.random()*100 + "%";
+    document.body.appendChild(w);
   }
 }
 </script>
