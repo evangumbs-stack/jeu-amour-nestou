@@ -8,7 +8,7 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 body{background:black;color:white;overflow-x:hidden;position:relative;}
 .container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;}
-.section{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;}
+.section{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;position:relative;}
 button{padding:12px 20px;margin:10px;border:none;border-radius:10px;background:#ff4da6;color:white;font-size:16px;cursor:pointer;}
 h1,h2{margin-bottom:15px;text-align:center;}
 .score{position:fixed;top:10px;right:10px;background:#ff4da6;padding:10px;border-radius:10px;z-index:10;}
@@ -17,25 +17,20 @@ h1,h2{margin-bottom:15px;text-align:center;}
 #stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;overflow:hidden;}
 .star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;}
 .shooting{position:absolute;width:3px;height:3px;background:white;border-radius:50%;box-shadow:0 0 10px white;}
-#gameArea,#gameArea2,#gameArea3,#puzzleContainer{position:relative;width:100%;height:60vh;overflow:hidden;}
+#gameArea,#gameArea2,#gameArea3,#puzzleContainer,#ticTacToe{position:relative;width:100%;height:60vh;overflow:hidden;display:none;}
 .item{position:absolute;font-size:30px;cursor:pointer;}
 #basket{font-size:50px;position:absolute;bottom:180px;left:50%;transform:translateX(-50%);z-index:10;cursor:pointer;display:none;}
 #basketFill{position:absolute;bottom:0;left:0;width:0%;height:30px;background:#ff4da6;border-radius:5px;pointer-events:none;}
-#ticTacToe{display:grid;grid-template-columns:repeat(3,80px);gap:5px;margin-top:20px;}
 .cell{width:80px;height:80px;background:#111a3a;color:white;font-size:30px;display:flex;justify-content:center;align-items:center;border:1px solid #ff4da6;}
 .messageNext{margin-top:20px;font-size:18px;color:#ffd6e8;text-align:center;}
 .finalHeart{position:absolute;font-size:30px;animation:floatUp 6s linear infinite;opacity:0.3;}
 @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);}100%{transform:translateY(-50px) rotate(360deg);}}
 .finalWord{position:absolute;font-size:24px;color:#ff4da6;opacity:0.2;animation:floatUp 12s linear infinite;}
 #finalPhoto{max-width:90%;max-height:80vh;border-radius:20px;margin:20px auto;display:block;}
-/* Overlay centrée pour instructions et bouton lancer */
+/* Mini-jeux overlay */
 .gameOverlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
-.gameOverlay button{margin-top:15px;}
-/* Puzzle Tiles */
-.puzzleTile{width:33.33%;height:33.33%;border:1px solid #ff4da6;background-size:300% 300%;transition:0.2s;}
-.puzzleTile.empty{background:none;}
-/* Section finale longue */
-.section.finalSection{height:auto;min-height:200vh;justify-content:flex-start;align-items:center;position:relative;padding:50px 20px 500px 20px;}
+.puzzleTile{cursor:pointer;border:1px solid #ff4da6;background-size:300% 300%;transition: transform 0.3s ease,border 0.3s ease;}
+.puzzleTile.selected{border:3px solid #ffd6e8;transform: scale(1.05);}
 </style>
 </head>
 <body>
@@ -46,6 +41,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button style="position:fixed;top:50px;right:10px;z-index:10;" onclick="toggleMusic()">⏯️ Musique</button>
 
 <div class="container">
+<!-- Titre -->
 <section class="section">
 <h1>💖 Jeu d'Amour pour Nestou 💖</h1>
 <p>Anne Esther, tu es mon trésor ✨💖</p>
@@ -53,7 +49,7 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <p>Défile vers le bas ⬇️</p>
 </section>
 
-<!-- Exemple question -->
+<!-- Questions -->
 <section class="section">
 <h2>Moment préféré ensemble ? 😏</h2>
 <button onclick="answerAnim('moment','Miguel 🎶',this)">Miguel 🎶</button>
@@ -62,49 +58,67 @@ h1,h2{margin-bottom:15px;text-align:center;}
 <button onclick="answerAnim('moment','Films 🎬',this)">Films 🎬</button>
 </section>
 
-<!-- Puzzle 3x3 -->
+<section class="section">
+<h2>Activité préférée avec moi ? 💕</h2>
+<button onclick="answerAnim('activity','Plage 🏖️',this)">Plage 🏖️</button>
+<button onclick="answerAnim('activity','Lego 🧱',this)">Lego 🧱</button>
+<button onclick="answerAnim('activity','Sushis 🍣',this)">Sushis 🍣</button>
+<button onclick="answerAnim('activity','Sport 🏃‍♀️',this)">Sport 🏃‍♀️</button>
+</section>
+
+<section class="section">
+<h2>Ton surnom préféré ? 😘</h2>
+<button onclick="answerAnim('surnom','Ma Nestou 💖',this)">Ma Nestou 💖</button>
+<button onclick="answerAnim('surnom','Mon trésor 💎',this)">Mon trésor 💎</button>
+<button onclick="answerAnim('surnom','Mon amour ❤️',this)">Mon amour ❤️</button>
+</section>
+
+<section class="section">
+<h2>Film ou série préférée ? 🎬</h2>
+<button onclick="answerAnim('film','Malcom and Marie',this)">Malcom and Marie</button>
+<button onclick="answerAnim('film','Eternal Sunshine',this)">Eternal Sunshine</button>
+<button onclick="answerAnim('film','Waves',this)">Waves</button>
+</section>
+
+<!-- Mini-jeu Puzzle -->
 <section class="section" id="puzzleSection">
 <h2>💖 Puzzle 3x3 💖</h2>
 <div class="gameOverlay" id="puzzleOverlay">
-<p>Assemble le puzzle !</p>
-<button onclick="startPuzzleGame()">Lancer</button>
+<p id="msg1">Assemble le puzzle !</p>
+<button onclick="startMiniGame1()">Lancer</button>
 </div>
 <div id="puzzleContainer"></div>
-<p class="messageNext" id="msgPuzzle"></p>
 </section>
 
-<!-- Chatons -->
-<section class="section">
+<!-- Mini-jeu Chatons -->
+<section class="section" id="catSection">
 <h2>🐱 Attrape les chatons !</h2>
-<div class="gameOverlay" id="chatOverlay">
-<p>Attrape tous les chatons !</p>
+<div class="gameOverlay" id="catOverlay">
+<p id="msg2">Clique sur les chatons pour les attraper !</p>
 <button onclick="startMiniGame2()">Lancer</button>
 </div>
 <div id="gameArea2"></div>
-<p class="messageNext" id="msg2"></p>
 </section>
 
-<!-- Panier de coeurs -->
-<section class="section">
+<!-- Mini-jeu Panier -->
+<section class="section" id="basketSection">
 <h2>🧺 Panier de cœurs !</h2>
 <div class="gameOverlay" id="basketOverlay">
-<p>Attrape tous les cœurs !</p>
+<p id="msg3">Ramasse un maximum de cœurs !</p>
 <button onclick="startMiniGame3()">Lancer</button>
 </div>
 <div id="gameArea3"></div>
 <div id="basket">🧺<div id="basketFill"></div></div>
-<p class="messageNext" id="msg3"></p>
 </section>
 
-<!-- Tic Tac Toe -->
-<section class="section">
+<!-- Mini-jeu Tic Tac Toe -->
+<section class="section" id="tttSection">
 <h2>❌ Tic Tac Toe 💕</h2>
 <div class="gameOverlay" id="tttOverlay">
-<p>Joue contre l'IA !</p>
+<p id="msg4">Place tes symboles !</p>
 <button onclick="startMiniGame4()">Lancer</button>
 </div>
 <div id="ticTacToe"></div>
-<p class="messageNext" id="msg4"></p>
 </section>
 
 <!-- Section finale -->
@@ -116,14 +130,14 @@ h1,h2{margin-bottom:15px;text-align:center;}
 </div>
 
 <script>
-// ===== Variables =====
+// Variables
 let score=0, scoreGames=[0,0,0,0], answers={};
 let music=document.getElementById("music"), musicPlaying=false;
 function playMusic(){music.play();musicPlaying=true;}
 function toggleMusic(){if(musicPlaying){music.pause();musicPlaying=false;}else{music.play();musicPlaying=true;}}
 function updateScore(){document.getElementById("score").innerText=score;}
 
-// ===== Question animation =====
+// Questions
 function answerAnim(key,val,btn){
   answers[key]=val;
   const pop=document.createElement("div");
@@ -135,7 +149,7 @@ function answerAnim(key,val,btn){
   setTimeout(()=>pop.remove(),600);
 }
 
-// ===== Stars =====
+// Stars
 for(let i=0;i<100;i++){
   let s=document.createElement("div"); s.className="star";
   s.style.top=Math.random()*100+"%"; s.style.left=Math.random()*100+"%";
@@ -153,195 +167,61 @@ function shootingStar(){
 }
 setInterval(shootingStar,2000);
 
-// ===== Puzzle 3x3 =====
-function startPuzzleGame(){
+// ===== Mini-jeux =====
+// Puzzle 3x3
+function startMiniGame1(){
   document.getElementById("puzzleOverlay").style.display="none";
-  const container=document.getElementById("puzzleContainer");
-  container.innerHTML="";
-  const size=3;
-  let tiles=[];
-  let emptyIndex=size*size-1;
-  const imgUrl="ton_image.png";
-
+  const container=document.getElementById("puzzleContainer"); container.style.display="grid"; container.innerHTML="";
+  const size=3; let tiles=[]; let firstTile=null;
   for(let i=0;i<size*size;i++){
-    const tile=document.createElement("div");
-    tile.className="puzzleTile";
-    tile.draggable=true;
-    tile.dataset.index=i;
-    if(i<size*size-1){
-      tile.style.backgroundImage=`url('${imgUrl}')`;
-      tile.style.backgroundSize=`${size*100}% ${size*100}%`;
-      tile.style.backgroundPosition=`${(i%size)*(100/(size-1))}% ${Math.floor(i/size)*(100/(size-1))}%`;
-    } else {tile.style.background="none"; tile.classList.add("empty");}
+    const tile=document.createElement("div"); tile.className="puzzleTile"; tile.dataset.correct=i;
+    tile.style.backgroundImage="url('ton_image.png')";
+    tile.style.backgroundPosition=`${(i%size)*(100/(size-1))}% ${(Math.floor(i/size)*(100/(size-1)))}%`;
     container.appendChild(tile); tiles.push(tile);
   }
-
-  for(let i=0;i<100;i++){
-    let neighbors=getNeighbors(emptyIndex);
-    let rand=neighbors[Math.floor(Math.random()*neighbors.length)];
-    swapTiles(emptyIndex,rand);
-    emptyIndex=rand;
-  }
-
-  tiles.forEach(tile=>{
-    tile.addEventListener("dragstart",e=>{
-      if(tile.classList.contains("empty")) e.preventDefault();
-      else e.dataTransfer.setData("text/plain",tile.dataset.index);
-    });
-    tile.addEventListener("dragover",e=>{e.preventDefault();});
-    tile.addEventListener("drop",e=>{
-      const from=parseInt(e.dataTransfer.getData("text/plain"));
-      const to=parseInt(tile.dataset.index);
-      if(tiles[to].classList.contains("empty") && getNeighbors(to).includes(from)){
-        swapTiles(from,to);
-        emptyIndex=from;
-        score++; scoreGames[0]++; updateScore();
-        if(checkSolved()){document.getElementById("msgPuzzle").innerText="🎉 Bravo ! Puzzle résolu ! ⬇️ Slide vers le jeu suivant ⬇️";}
-      }
-    });
+  function shuffle(){for(let i=tiles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); swapTiles(tiles[i],tiles[j]);}}
+  shuffle();
+  container.addEventListener("click",function(e){
+    if(!e.target.classList.contains("puzzleTile")) return;
+    const tile=e.target;
+    if(firstTile===null){firstTile=tile; firstTile.classList.add("selected");} 
+    else if(firstTile!==tile){swapTiles(firstTile,tile); firstTile.classList.remove("selected"); firstTile=null; score++; scoreGames[0]++; updateScore(); if(checkSolved()){document.getElementById("msg1").innerText="🎉 Puzzle terminé !";}}
+    else{firstTile.classList.remove("selected"); firstTile=null;}
   });
-
-  function swapTiles(i,j){
-    let tempPos=tiles[i].style.backgroundPosition;
-    let tempBg=tiles[i].style.backgroundImage;
-    tiles[i].style.backgroundPosition=tiles[j].style.backgroundPosition;
-    tiles[i].style.backgroundImage=tiles[j].style.backgroundImage;
-    tiles[j].style.backgroundPosition=tempPos;
-    tiles[j].style.backgroundImage=tempBg;
-    tiles[i].classList.toggle("empty");
-    tiles[j].classList.toggle("empty");
-  }
-
-  function getNeighbors(index){
-    const neighbors=[];
-    const row=Math.floor(index/size), col=index%size;
-    if(row>0) neighbors.push(index-size);
-    if(row<size-1) neighbors.push(index+size);
-    if(col>0) neighbors.push(index-1);
-    if(col<size-1) neighbors.push(index+1);
-    return neighbors;
-  }
-
-  function checkSolved(){
-    for(let i=0;i<tiles.length-1;i++){
-      const pos=`${(i%size)*(100/(size-1))}% ${Math.floor(i/size)*(100/(size-1))}%`;
-      if(tiles[i].style.backgroundPosition!==pos) return false;
-    }
-    return true;
-  }
+  function swapTiles(t1,t2){const temp=t1.style.backgroundPosition; t1.style.backgroundPosition=t2.style.backgroundPosition; t2.style.backgroundPosition=temp;}
+  function checkSolved(){for(let i=0;i<tiles.length;i++){const pos=tiles[i].style.backgroundPosition; const correctX=(i%size)*(100/(size-1))+"%"; const correctY=(Math.floor(i/size)*(100/(size-1)))+"%"; if(pos!==correctX+" "+correctY) return false;} return true;}
 }
 
-// ===== Mini-jeux Chatons et Panier =====
-function startMiniGame2(){
-  document.getElementById("chatOverlay").style.display="none";
-  const area=document.getElementById("gameArea2"); area.innerHTML="";
-  let interval=setInterval(()=>{
-    const c=document.createElement("div"); c.className="item"; c.innerText="🐱";
-    c.style.left=Math.random()*(area.offsetWidth-30)+"px"; c.style.top="-30px";
-    area.appendChild(c);
-    let fall=setInterval(()=>{
-      let top=parseFloat(c.style.top);
-      if(top>area.offsetHeight){c.remove();clearInterval(fall);} else{c.style.top=(top+3)+"px";}
-    },20);
-    c.onclick=c.ontouchstart=()=>{c.remove();score++;scoreGames[1]++;updateScore();}
-  },600);
-  setTimeout(()=>{clearInterval(interval);document.getElementById("msg2").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
-}
+// Chatons
+function startMiniGame2(){document.getElementById("catOverlay").style.display="none"; const area=document.getElementById("gameArea2"); area.style.display="block"; area.innerHTML=""; let interval=setInterval(()=>{const c=document.createElement("div"); c.className="item"; c.innerText="🐱"; c.style.left=Math.random()*(area.offsetWidth-30)+"px"; c.style.top="-30px"; area.appendChild(c); let fall=setInterval(()=>{let top=parseFloat(c.style.top); if(top>area.offsetHeight){c.remove();clearInterval(fall);} else{c.style.top=(top+3)+"px";}},20); c.onclick=c.ontouchstart=()=>{c.remove();score++;scoreGames[1]++;updateScore();}},600); setTimeout(()=>{clearInterval(interval);document.getElementById("msg2").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);}
 
-function startMiniGame3(){
-  document.getElementById("basketOverlay").style.display="none";
-  const area=document.getElementById("gameArea3"); area.innerHTML="";
-  const basket=document.getElementById("basket"); const fill=document.getElementById("basketFill");
-  basket.style.display="block"; fill.style.width="0%"; fill.style.height="30px";
-  let collected=0; const maxCollect=30;
-  basket.onmousedown=basket.ontouchstart=(e)=>{
-    let offsetX=(e.clientX||e.touches[0].clientX)-basket.offsetLeft;
-    document.onmousemove=document.ontouchmove=(ev)=>{
-      let basketX=(ev.clientX||ev.touches[0].clientX)-offsetX;
-      if(basketX<0) basketX=0; if(basketX>area.offsetWidth-basket.offsetWidth) basketX=area.offsetWidth-basket.offsetWidth;
-      basket.style.left=basketX+"px";
-    }
-  };
-  document.onmouseup=document.ontouchend=()=>{document.onmousemove=null;document.ontouchmove=null;};
+// Panier
+function startMiniGame3(){document.getElementById("basketOverlay").style.display="none"; const area=document.getElementById("gameArea3"); area.style.display="block"; area.innerHTML=""; const basket=document.getElementById("basket"); const fill=document.getElementById("basketFill"); basket.style.display="block"; fill.style.width="0%"; fill.style.height="30px"; let collected=0; const maxCollect=30; basket.onmousedown=basket.ontouchstart=(e)=>{let offsetX=(e.clientX||e.touches[0].clientX)-basket.offsetLeft; document.onmousemove=document.ontouchmove=(ev)=>{let basketX=(ev.clientX||ev.touches[0].clientX)-offsetX; if(basketX<0) basketX=0; if(basketX>area.offsetWidth-basket.offsetWidth) basketX=area.offsetWidth-basket.offsetWidth; basket.style.left=basketX+"px";}}; document.onmouseup=document.ontouchend=()=>{document.onmousemove=null;document.ontouchmove=null;}; let interval=setInterval(()=>{const h=document.createElement("div"); h.className="item"; h.innerText="💖"; h.style.left=Math.random()*(area.offsetWidth-30)+"px"; h.style.top="-30px"; area.appendChild(h); let fall=setInterval(()=>{let top=parseFloat(h.style.top); if(top>area.offsetHeight){h.remove();clearInterval(fall);} else{h.style.top=(top+3)+"px"; const hRect=h.getBoundingClientRect(); const bRect=basket.getBoundingClientRect(); if(!(hRect.right<bRect.left||hRect.left>bRect.right||hRect.bottom<bRect.top||hRect.top>bRect.bottom)){h.remove(); clearInterval(fall); collected++; score++; scoreGames[2]++; updateScore(); fill.style.width=Math.min(100,(collected/maxCollect*100))+"%";}}},20);},500); setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);}
 
-  let interval=setInterval(()=>{
-    const h=document.createElement("div"); h.className="item"; h.innerText="💖";
-    h.style.left=Math.random()*(area.offsetWidth-30)+"px"; h.style.top="-30px"; area.appendChild(h);
-    let fall=setInterval(()=>{
-      let top=parseFloat(h.style.top);
-      if(top>area.offsetHeight){h.remove();clearInterval(fall);}
-      else{
-        h.style.top=(top+3)+"px";
-        const hRect=h.getBoundingClientRect(); const bRect=basket.getBoundingClientRect();
-        if(!(hRect.right<bRect.left||hRect.left>bRect.right||hRect.bottom<bRect.top||hRect.top>bRect.bottom)){
-          h.remove(); clearInterval(fall); collected++; score++; scoreGames[2]++; updateScore();
-          fill.style.width=Math.min(100,(collected/maxCollect*100))+"%";
-        }
-      }
-    },20);
-  },500);
-  setTimeout(()=>{clearInterval(interval);basket.style.display="none";document.getElementById("msg3").innerText="⬇️ Slide vers le jeu suivant ⬇️";},15000);
-}
-
-// ===== Tic Tac Toe avec IA =====
+// Tic Tac Toe avec IA
 function startMiniGame4(){
   document.getElementById("tttOverlay").style.display="none";
-  const grid=document.getElementById("ticTacToe"); grid.innerHTML="";
-  let board=["","","","","","","","",""];
-  let player="🍣", ai="🐈";
-  let cells=[];
+  const grid=document.getElementById("ticTacToe"); grid.style.display="grid"; grid.innerHTML=""; let board=["","","","","","","","",""]; let current="🍣";
   for(let i=0;i<9;i++){
-    const cell=document.createElement("div"); cell.className="cell";
-    cell.onclick=()=>{if(board[i]==="" && playerTurn){board[i]=player; cell.innerText=player; score++; scoreGames[3]++; updateScore(); playerTurn=false; aiMove();}}
-    grid.appendChild(cell); cells.push(cell);
+    let c=document.createElement("div"); c.className="cell";
+    c.onclick=()=>{if(board[i]===""){playerMove(i);}}
+    grid.appendChild(c);
   }
-  let playerTurn=true;
-
+  function playerMove(index){
+    board[index]=current; grid.children[index].innerText=current; score++; scoreGames[3]++; updateScore();
+    if(checkWin(current)){alert(current+" a gagné !"); return;}
+    current="🐈"; setTimeout(()=>aiMove(),1000+Math.random()*1000);
+  }
   function aiMove(){
-    setTimeout(()=>{
-      let emptyCells=[]; board.forEach((v,i)=>{if(v==="") emptyCells.push(i);});
-      if(emptyCells.length===0) return;
-      const move=emptyCells[Math.floor(Math.random()*emptyCells.length)];
-      board[move]=ai; cells[move].innerText=ai;
-      playerTurn=true;
-    },1000 + Math.random()*1000); // 1-2s
+    let empty=[]; for(let i=0;i<9;i++) if(board[i]==="") empty.push(i);
+    if(empty.length===0) return;
+    let choice=empty[Math.floor(Math.random()*empty.length)];
+    board[choice]=current; grid.children[choice].innerText=current; if(checkWin(current)){alert(current+" a gagné !"); return;}
+    current="🍣";
   }
-
-  setTimeout(()=>{document.getElementById("msg4").innerText="⬇️ Slide vers le message final ⬇️";},16000);
-}
-
-// ===== Message final =====
-function showFinal(){
-  const finalMsg=document.getElementById("finalMsg");
-  finalMsg.innerText=
-`💖 Mon amour 💖
-
-Tes réponses :
-- Moment préféré : ${answers.moment||"Non choisi"}
-- Activité : ${answers.activity||"Non choisi"}
-- Surnom : ${answers.surnom||"Non choisi"}
-- Film/Série : ${answers.film||"Non choisi"}
-
-Scores des jeux :
-- Puzzle : ${scoreGames[0]}
-- Chatons : ${scoreGames[1]}
-- Panier : ${scoreGames[2]}
-- Tic Tac Toe : ${scoreGames[3]}
-
-Score total : ${score}
-
-Chaque moment avec toi est précieux : nos Lego, nos plages, nos couchers de soleil, nos voyages, nos sushis, nos séries… tout est plus beau avec toi.
-Merci pour ton amour, ta patience et ta douceur. Tu es mon bonheur, mon refuge et mon cœur. 💖`;
-
-  for(let i=0;i<50;i++){
-    let h=document.createElement("div"); h.className="finalHeart"; h.innerText="💖";
-    h.style.left=Math.random()*100+"%"; h.style.top=Math.random()*100+"%"; document.body.appendChild(h);
-  }
-  const words=["💖Je t’aime💖","🌹Mon trésor🌹","💕Ma Nestou💕"];
-  for(let i=0;i<30;i++){
-    let w=document.createElement("div"); w.className="finalWord";
-    w.innerText=words[Math.floor(Math.random()*words.length)];
-    w.style.left=Math.random()*100+"%"; w.style.top=Math.random()*100+"%"; document.body.appendChild(w);
+  function checkWin(player){
+    const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    return wins.some(arr=>arr.every(i=>board[i]===player));
   }
 }
 </script>
