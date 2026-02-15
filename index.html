@@ -86,24 +86,24 @@ h1,h2{margin-bottom:15px;text-align:center;}
 </section>
 
 <section class="section">
-  <h2 style="margin-top:80px;">💖 Puzzle 3x3 💖</h2> <!-- margin-top pour le bouton musique -->
-  <div id="puzzleContainer" style="width:80%;height:60vh;"></div>
-  <p class="messageNext" id="msg1"></p>
+  <h2>💖 Puzzle 3x3 💖</h2>
+  <div id="puzzleContainer" style="width:80%;height:50vh;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);grid-gap:5px;"></div>
+  <p class="messageNext" id="msg1" style="margin-top:20px;margin-bottom:10px;">Assemble le puzzle !</p>
   <button onclick="startMiniGame1()">Lancer</button>
 </section>
 
 <section class="section">
-  <h2 style="margin-top:80px;">🐱 Attrape les chatons !</h2>
+  <h2>🐱 Attrape les chatons !</h2>
   <div id="gameArea2"></div>
-  <p class="messageNext" id="msg2"></p>
+  <p class="messageNext" id="msg2" style="margin-top:20px;margin-bottom:10px;">Clique sur les chatons pour gagner des points !</p>
   <button onclick="startMiniGame2()">Lancer</button>
 </section>
 
 <section class="section">
-  <h2 style="margin-top:80px;">🧺 Panier de cœurs !</h2>
+  <h2>🧺 Panier de cœurs !</h2>
   <div id="gameArea3"></div>
   <div id="basket">🧺<div id="basketFill"></div></div>
-  <p class="messageNext" id="msg3"></p>
+  <p class="messageNext" id="msg3" style="margin-top:20px;margin-bottom:10px;">Attrape les cœurs dans le panier !</p>
   <button onclick="startMiniGame3()">Lancer</button>
 </section>
 
@@ -162,72 +162,61 @@ setInterval(shootingStar,2000);
 
 // ===== Mini-jeux =====
 function startMiniGame1(){
-    const container = document.getElementById("puzzleContainer");
-    container.innerHTML = "";
-    const size = 3;
-    let tiles = [];
-    let firstTile = null;
+  const container=document.getElementById("puzzleContainer");
+  container.innerHTML="";
+  const size=3;
+  let tiles=[], firstTile=null;
+  for(let i=0;i<size*size;i++){
+    const tile=document.createElement("div");
+    tile.className="puzzleTile";
+    tile.dataset.correct=i;
+    tile.style.backgroundImage="url('ton_image.png')";
+    tile.style.backgroundSize="300% 300%";
+    tile.style.backgroundPosition=`${(i%size)*(100/(size-1))}% ${(Math.floor(i/size)*(100/(size-1)))}%`;
+    container.appendChild(tile);
+    tiles.push(tile);
+  }
 
-    // Création des tuiles
-    for(let i=0;i<size*size;i++){
-        const tile = document.createElement("div");
-        tile.className = "puzzleTile";
-        tile.dataset.correct = i;
-        tile.style.backgroundImage = "url('ton_image.png')"; // <-- mettre ton PNG
-        tile.style.backgroundSize = "300% 300%";
-        tile.style.backgroundPosition = `${(i%size)*(100/(size-1))}% ${(Math.floor(i/size)*(100/(size-1))) }%`;
-        tile.style.width = tile.style.height = "100%";
-        container.appendChild(tile);
-        tiles.push(tile);
+  function shuffle(){
+    for(let i=tiles.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      swapTiles(tiles[i],tiles[j]);
     }
+  }
+  shuffle();
 
-    // Mélange
-    function shuffle(){
-        for(let i=tiles.length-1;i>0;i--){
-            const j=Math.floor(Math.random()*(i+1));
-            swapTiles(tiles[i],tiles[j]);
-        }
+  container.addEventListener("click", function(e){
+    if(!e.target.classList.contains("puzzleTile")) return;
+    const tile=e.target;
+    if(firstTile===null){firstTile=tile;firstTile.classList.add("selected");}
+    else if(firstTile!==tile){
+      swapTiles(firstTile,tile);
+      firstTile.classList.remove("selected");
+      firstTile=null;
+      score++; scoreGames[0]++; updateScore();
+      if(checkSolved()){document.getElementById("msg1").innerText="🎉 Puzzle terminé ! Slide vers le jeu suivant ⬇️";}
+    } else {firstTile.classList.remove("selected");firstTile=null;}
+  });
+
+  function swapTiles(t1,t2){
+    const temp=t1.style.backgroundPosition;
+    t1.style.backgroundPosition=t2.style.backgroundPosition;
+    t2.style.backgroundPosition=temp;
+    t1.style.transform="scale(1.1)";
+    t2.style.transform="scale(1.1)";
+    setTimeout(()=>{t1.style.transform="scale(1)"; t2.style.transform="scale(1)";},300);
+  }
+
+  function checkSolved(){
+    for(let i=0;i<tiles.length;i++){
+      const pos=tiles[i].style.backgroundPosition;
+      const correctX=(i%size)*(100/(size-1))+"%";
+      const correctY=(Math.floor(i/size)*(100/(size-1)))+"%";
+      if(pos!==correctX+" "+correctY) return false;
     }
-    shuffle();
-
-    // Clic sur tuile
-    container.addEventListener("click", function(e){
-        if(!e.target.classList.contains("puzzleTile")) return;
-        const tile = e.target;
-        if(firstTile === null){
-            firstTile = tile;
-            firstTile.classList.add("selected");
-        } else if(firstTile !== tile){
-            swapTiles(firstTile,tile);
-            firstTile.classList.remove("selected");
-            firstTile = null;
-            score++; updateScore(); // score global
-            if(checkSolved()){
-                document.getElementById("msg1").innerText = "🎉 Bravo ! Puzzle résolu ! ⬇️ Slide vers le jeu suivant ⬇️";
-            }
-        } else {
-            firstTile.classList.remove("selected");
-            firstTile = null;
-        }
-    });
-
-    function swapTiles(t1,t2){
-        const tempPos = t1.style.backgroundPosition;
-        t1.style.backgroundPosition = t2.style.backgroundPosition;
-        t2.style.backgroundPosition = tempPos;
-    }
-
-    function checkSolved(){
-        for(let i=0;i<tiles.length;i++){
-            const pos = tiles[i].style.backgroundPosition;
-            const correctX = (i%size)*(100/(size-1))+"%";
-            const correctY = (Math.floor(i/size)*(100/(size-1)))+"%";
-            if(pos !== correctX + " " + correctY) return false;
-        }
-        return true;
-    }
+    return true;
+  }
 }
-
 function startMiniGame2(){
   const area=document.getElementById("gameArea2"); area.innerHTML="";
   let interval=setInterval(()=>{
