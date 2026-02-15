@@ -39,14 +39,23 @@ h1,h2{margin-bottom:15px;text-align:center;}
     border:3px solid #ffd6e8;
     transform: scale(1.05);
 }
+/* Puzzle Styles ajustées */
 #puzzleContainer{
     display:grid;
     grid-template-columns:repeat(4,1fr);
     grid-template-rows:repeat(4,1fr);
     width:80%;
-    height:45vh;
+    height:45vh; /* réduit pour mieux tenir à l’écran */
     margin:auto;
     gap:5px;
+}
+.section:nth-child(6){ /* section puzzle */
+    height:auto; /* laisse s’adapter à son contenu */
+    min-height:60vh; /* pour qu’elle reste assez grande */
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
 }
 </style>
 </head>
